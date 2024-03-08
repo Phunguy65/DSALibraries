@@ -618,7 +618,9 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     void Swap(DList& list) noexcept
     {
-        std::swap(this->LinkedListCore.NodeBase, list.LinkedListCore.NodeBase);
+        std::swap(this->LinkedListCore.NodeBase.PointerNext, list.LinkedListCore.NodeBase.PointerNext);
+        std::swap(this->LinkedListCore.NodeBase.PointerNext.PointerPrev,
+                  list.LinkedListCore.NodeBase.PointerNext.PointerPrev);
     }
 
     void Clear() noexcept

@@ -666,7 +666,31 @@ template <typename T, typename Alloc = Allocator<T>> class CList : private CList
 
     void Swap(CList& sll) noexcept
     {
-        std::swap(this->LinkedListCore.NodeHead.PointerNext, sll.LinkedListCore.NodeHead.PointerNext);
+        // swap circular single linked list
+        if (std::addressof(sll) != this)
+        {
+            std::swap(this->LinkedListCore.NodeHead.PointerNext, sll.LinkedListCore.NodeHead.PointerNext);
+
+            IteratorAlias oldTail = this->GetBegin();
+
+            while (oldTail.PointerNext() != this->GetEnd())
+            {
+                ++oldTail;
+            }
+
+            IteratorAlias newTail = sll.GetBegin();
+
+            while (newTail.PointerNext() != sll.GetEnd())
+            {
+                ++newTail;
+            }
+
+            NodeBaseAlias* oldTailNodeBase = static_cast<NodeBaseAlias*>(oldTail.NodeBase);
+            NodeBaseAlias* newTailNodeBase = static_cast<NodeBaseAlias*>(newTail.NodeBase);
+
+            sll.JoinTwoNodes(newTailNodeBase, &this->LinkedListCore.NodeHead);
+            this->JoinTwoNodes(oldTailNodeBase, &sll.LinkedListCore.NodeHead);
+        }
     }
 
     void Reverse() noexcept
