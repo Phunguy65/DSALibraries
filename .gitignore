@@ -46,6 +46,8 @@
 
 ## Local 
 
-.idea/*.xml
+.idea/**/*
+
+.cache/**/*
 
 build/**/*
