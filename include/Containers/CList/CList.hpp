@@ -5,6 +5,7 @@
 #include "CListNode.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <list>
 #include <memory>
 #include <type_traits>
 #include <utility>

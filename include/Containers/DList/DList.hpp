@@ -192,8 +192,8 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     using ReferenceTypeAlias = ValueTypeAlias&;
     using ConstReferenceTypeAlias = const ValueTypeAlias&;
 
-    using IteratorAlias = DListBaseAlias::IteratorAlias;
-    using ConstIteratorAlias = DListBaseAlias::ConstIteratorAlias;
+    using IteratorAlias = typename DListBaseAlias::IteratorAlias;
+    using ConstIteratorAlias = typename DListBaseAlias::ConstIteratorAlias;
     using AllocatorTypeAlias = typename DListBaseAlias::AllocatorTypeAlias;
     using NodeAlias = typename DListBaseAlias::NodeAlias;
     using NodeBaseAlias = typename DListBaseAlias::NodeBaseAlias;
@@ -476,20 +476,16 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         SpliceAfter(pos, std::move(list), first, last);
     }
 
-    // IteratorAlias EraseAfter(ConstIteratorAlias position)
-    // {
-    //     return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(position.NodeBase)));
-    // }
+    IteratorAlias EraseAfter(ConstIteratorAlias position)
+    {
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(position.NodeBase)));
+    }
 
-    // IteratorAlias Erase(IteratorAlias begin, IteratorAlias end)
-    // {
-    //     IteratorAlias it = begin;
-    //     while (it != end)
-    //     {
-    //         it = EraseAfter(it);
-    //     }
-    //     return end;
-    // }
+    IteratorAlias EraseAfter(ConstIteratorAlias begin, ConstIteratorAlias end)
+    {
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(begin.NodeBase),
+                                                      const_cast<NodeBaseAlias*>(end.NodeBase)));
+    }
 
     void Remove(const ValueTypeAlias& value)
     {

@@ -592,10 +592,11 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         this->Merge(std::move(sll), std::less<T>());
     }
 
-    template <typename Compare> void Sort(Compare compare)
+    template <typename TCompare> void Sort(TCompare compare)
     {
         // selection sort
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
+
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeBase;
 
         while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {

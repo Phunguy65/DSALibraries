@@ -39,14 +39,25 @@ struct DListNodeBase
         if (end)
         {
             begin->PointerNext = end->PointerNext;
-            end->PointerNext->PointerPrev = begin;
+            if (end->PointerNext)
+            {
+                end->PointerNext->PointerPrev = begin;
+            }
+
+            end->PointerNext = this->PointerNext;
+
+            if (this->PointerNext)
+            {
+                this->PointerNext->PointerPrev = end;
+            }
         }
         else
         {
             begin->PointerNext = nullptr;
         }
-        PointerNext = keep;
-        PointerNext->PointerPrev = this;
+
+        this->PointerNext = keep;
+        keep->PointerPrev = this;
         return end;
     }
 
