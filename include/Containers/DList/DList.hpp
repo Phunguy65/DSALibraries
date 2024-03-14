@@ -192,8 +192,8 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     using ReferenceTypeAlias = ValueTypeAlias&;
     using ConstReferenceTypeAlias = const ValueTypeAlias&;
 
-    using IteratorAlias = DListBaseAlias::IteratorAlias;
-    using ConstIteratorAlias = DListBaseAlias::ConstIteratorAlias;
+    using IteratorAlias = typename DListBaseAlias::IteratorAlias;
+    using ConstIteratorAlias = typename DListBaseAlias::ConstIteratorAlias;
     using AllocatorTypeAlias = typename DListBaseAlias::AllocatorTypeAlias;
     using NodeAlias = typename DListBaseAlias::NodeAlias;
     using NodeBaseAlias = typename DListBaseAlias::NodeBaseAlias;
@@ -476,20 +476,16 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         SpliceAfter(pos, std::move(list), first, last);
     }
 
-    // IteratorAlias EraseAfter(ConstIteratorAlias position)
-    // {
-    //     return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(position.NodeBase)));
-    // }
+    IteratorAlias EraseAfter(ConstIteratorAlias position)
+    {
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(position.NodeBase)));
+    }
 
-    // IteratorAlias Erase(IteratorAlias begin, IteratorAlias end)
-    // {
-    //     IteratorAlias it = begin;
-    //     while (it != end)
-    //     {
-    //         it = EraseAfter(it);
-    //     }
-    //     return end;
-    // }
+    IteratorAlias EraseAfter(ConstIteratorAlias begin, ConstIteratorAlias end)
+    {
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(begin.NodeBase),
+                                                      const_cast<NodeBaseAlias*>(end.NodeBase)));
+    }
 
     void Remove(const ValueTypeAlias& value)
     {
@@ -586,28 +582,30 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     {
         // selection sort
 
-        NodeBaseAlias* current = &this->LinkedListCore.NodeBase;
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeBase;
 
-        while (current->PointerNext)
+        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {
-            NodeBaseAlias* min = current;
-            NodeBaseAlias* temp = current->PointerNext;
+            NodeBaseAlias* min = curr;
+            NodeBaseAlias* next = curr->PointerNext;
 
-            while (temp)
+            while (NodeAlias* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
             {
-                if (compare(*static_cast<NodeAlias*>(temp)->GetData(), *static_cast<NodeAlias*>(min)->GetData()))
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(min->PointerNext)->GetData()))
                 {
-                    min = temp;
+                    min = next;
                 }
-                temp = temp->PointerNext;
+                next = next->PointerNext;
             }
 
-            if (min != current)
+            if (min != curr)
             {
-                current->TransferAfter(min, min->PointerNext);
+                curr->TransferAfter(min, min->PointerNext);
             }
-
-            current = current->PointerNext;
+            else
+            {
+                curr = curr->PointerNext;
+            }
         }
     }
 

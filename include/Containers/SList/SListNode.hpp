@@ -32,7 +32,7 @@ struct SListNodeBase
         if (end)
         {
             begin->PointerNext = end->PointerNext;
-            end->PointerNext = PointerNext;
+            end->PointerNext = this->PointerNext;
         }
         else
         {
