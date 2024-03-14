@@ -596,7 +596,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
     {
         // selection sort
 
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeBase;
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
 
         while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {

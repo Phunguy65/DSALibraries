@@ -582,28 +582,30 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     {
         // selection sort
 
-        NodeBaseAlias* current = &this->LinkedListCore.NodeBase;
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeBase;
 
-        while (current->PointerNext)
+        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {
-            NodeBaseAlias* min = current;
-            NodeBaseAlias* temp = current->PointerNext;
+            NodeBaseAlias* min = curr;
+            NodeBaseAlias* next = curr->PointerNext;
 
-            while (temp)
+            while (NodeAlias* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
             {
-                if (compare(*static_cast<NodeAlias*>(temp)->GetData(), *static_cast<NodeAlias*>(min)->GetData()))
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(min->PointerNext)->GetData()))
                 {
-                    min = temp;
+                    min = next;
                 }
-                temp = temp->PointerNext;
+                next = next->PointerNext;
             }
 
-            if (min != current)
+            if (min != curr)
             {
-                current->TransferAfter(min, min->PointerNext);
+                curr->TransferAfter(min, min->PointerNext);
             }
-
-            current = current->PointerNext;
+            else
+            {
+                curr = curr->PointerNext;
+            }
         }
     }
 
