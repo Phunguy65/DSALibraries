@@ -55,30 +55,8 @@ struct CListNodeBase
     }
 
     void ReverseAfter() noexcept
-    { // Get the next node in the list
+    {
         CListNodeBase* tail = this->PointerNext;
-
-        // // If there is no next node, we're at the end of the list and there's nothing to reverse
-        // if (!tail)
-        // {
-        //     return;
-        // }
-
-        // // While there are still nodes to process
-        // while (CListNodeBase* temp = tail->PointerNext)
-        // {
-        //     // Keep a reference to the current next node
-        //     CListNodeBase* keepNode = this->PointerNext;
-
-        //     // Move the next node pointer to the node after the next node
-        //     this->PointerNext = temp;
-
-        //     // Update the next node's next pointer to skip the node after it
-        //     tail->PointerNext = temp->PointerNext;
-
-        //     // Point the new next node's next pointer to the old next node
-        //     this->PointerNext->PointerNext = keepNode;
-        // }
 
         if (tail == this)
         {

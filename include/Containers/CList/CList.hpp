@@ -629,24 +629,26 @@ template <typename T, typename Alloc = Allocator<T>> class CList : private CList
         this->Merge(std::move(sll), std::less<T>());
     }
 
-    template <typename Compare> void Sort(Compare compare)
+    template <typename TCompare> void Sort(TCompare compare)
     {
         // selection sort
 
         NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
-
-        while (curr->PointerNext != &this->LinkedListCore.NodeHead)
+        NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext);
+        while (temp != &this->LinkedListCore.NodeHead)
         {
             NodeBaseAlias* min = curr;
-            NodeBaseAlias* temp = curr->PointerNext;
+            NodeBaseAlias* next = curr->PointerNext;
+            NodeAlias* nextTemp = static_cast<NodeAlias*>(next->PointerNext);
 
-            while (temp != &this->LinkedListCore.NodeHead)
+            while (nextTemp != &this->LinkedListCore.NodeHead)
             {
-                if (compare(*static_cast<NodeAlias*>(temp)->GetData(), *static_cast<NodeAlias*>(min)->GetData()))
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(min->PointerNext)->GetData()))
                 {
-                    min = temp;
+                    min = next;
                 }
-                temp = temp->PointerNext;
+                next = next->PointerNext;
+                nextTemp = static_cast<NodeAlias*>(next->PointerNext);
             }
 
             if (min != curr)
@@ -657,6 +659,8 @@ template <typename T, typename Alloc = Allocator<T>> class CList : private CList
             {
                 curr = curr->PointerNext;
             }
+
+            temp = static_cast<NodeAlias*>(curr->PointerNext);
         }
     }
 
