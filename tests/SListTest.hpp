@@ -2,7 +2,6 @@
 #define DSA_LIBRARIES_SLIST_TEST_HPP
 #include "../googletest/include/gtest/gtest.h"
 #include "../include/Containers/SList/SList.hpp"
-#include <exception>
 #include <string>
 
 namespace DSALibraries::Containers

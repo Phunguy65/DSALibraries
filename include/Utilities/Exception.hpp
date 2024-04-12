@@ -17,60 +17,32 @@ namespace Utilities
 class Exception : std::exception
 {
   public:
-    typedef std::string string_type;
+    typedef const char *string_type;
     typedef int numeric_type;
 
     Exception(string_type message, string_type fileText, numeric_type line) noexcept
-        : _message(std::move(message)), _fileText(std::move(fileText)), _lineNumber(line)
+        : _message(std::move(message)), _fileName(std::move(fileText)), _lineNumber(line)
     {
     }
 
-    [[nodiscard]] constexpr string_type GetMessage() const
+    [[nodiscard]] const char *what() const noexcept override
     {
         return _message;
     }
 
-    [[nodiscard]] constexpr string_type GetFile() const
+    [[nodiscard]] string_type GetFileName() const noexcept
     {
-        return _fileText;
+        return _fileName;
     }
 
-    [[nodiscard]] constexpr numeric_type GetLineNumber() const
+    [[nodiscard]] numeric_type GetLineNumber() const noexcept
     {
         return _lineNumber;
     }
 
-    [[nodiscard]] constexpr string_type GetFullMessage() const
-    {
-        return GetMessage() + "with file " + GetFile() + " at line " + std::to_string(GetLineNumber());
-    }
-
-    [[nodiscard]] constexpr string_type GetMessageWithLine() const
-    {
-        return GetMessage() + " at line " + std::to_string(GetLineNumber());
-    }
-
-    [[nodiscard]] const char* what() const noexcept override
-    {
-        if (_fileText.empty())
-        {
-            auto message = GetMessageWithLine();
-            auto returnMessage = new char[message.size() + 1];
-            std::strcpy(returnMessage, message.c_str());
-            return returnMessage;
-        }
-        else
-        {
-            auto message = GetFullMessage();
-            auto returnMessage = new char[message.size() + 1];
-            std::strcpy(returnMessage, message.c_str());
-            return returnMessage;
-        }
-    }
-
   private:
     string_type _message;
-    string_type _fileText;
+    string_type _fileName;
     numeric_type _lineNumber;
 };
 } // namespace Utilities

@@ -30,6 +30,8 @@ add_library(${PROJECT_NAME} STATIC
         include/Containers/Stack/Stack.hpp
         include/Utilities/Exception.hpp
         include/Utilities/Allocator.hpp
+        include/Utilities/Memory.hpp
+        include/Utilities/Algorithm.hpp
         include/Containers/List/List.hpp
         include/Containers/List/ListIterator.hpp
         include/Containers/List/ListNode.hpp
@@ -45,7 +47,10 @@ add_library(${PROJECT_NAME} STATIC
         include/Containers/CList/CList.hpp
         include/Containers/CList/CListIterator.hpp
         include/Containers/CList/CListNode.hpp
-        include/Containers/CList/CListExceptions.hpp)
+        include/Containers/CList/CListExceptions.hpp
+        include/Containers/Vector/VectorBase.hpp
+        include/Containers/Vector/VectorExceptions.hpp
+        include/Containers/Vector/Vector.hpp)
 
 
 
@@ -63,6 +68,9 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Stack>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/List>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/SList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/DList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/CList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Vector>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Utilities>
         # where external projects will look for the library's public headers
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -101,6 +109,8 @@ set(public_headers
     include/Containers/Stack/Stack.hpp
         include/Utilities/Exception.hpp
         include/Utilities/Allocator.hpp
+        include/Utilities/Memory.hpp
+        include/Utilities/Algorithm.hpp
         include/Containers/List/List.hpp
         include/Containers/List/ListIterator.hpp
         include/Containers/List/ListNode.hpp
@@ -117,7 +127,9 @@ set(public_headers
         include/Containers/CList/CListIterator.hpp
         include/Containers/CList/CListNode.hpp
         include/Containers/CList/CListExceptions.hpp
-
+        include/Containers/Vector/VectorBase.hpp
+        include/Containers/Vector/VectorExceptions.hpp
+        include/Containers/Vector/Vector.hpp
 )
 
 # not for MSVC
