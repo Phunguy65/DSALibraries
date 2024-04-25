@@ -18,11 +18,9 @@ TOuputIterator Copy(TInputIterator first, TInputIterator last, TOuputIterator re
 template <typename TFirstInputIterator, typename TSecondInputIterator>
 constexpr TSecondInputIterator Move(TFirstInputIterator first, TFirstInputIterator last, TSecondInputIterator result)
 {
-    while (first != last)
+    for (; first != last; ++first, ++result)
     {
         *result = std::move(*first);
-        (void)++first;
-        (void)++result;
     }
     return result;
 }

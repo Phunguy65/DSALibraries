@@ -7,7 +7,7 @@
 #include "../googletest/include/gtest/gtest.h"
 #include "../include/Containers/List/List.hpp"
 
-namespace DSALibraries::Containers
+namespace DSALibraries::Test
 {
 class ListTest : public ::testing::Test
 {
@@ -105,5 +105,5 @@ TEST_F(ListTest, EmplaceBack)
     ASSERT_EQ(List_1.GetItemBack(), 10);
 }
 
-}; // namespace DSALibraries::Containers
+}; // namespace DSALibraries::Test
 #endif

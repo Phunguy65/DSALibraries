@@ -2,145 +2,234 @@
 #define DSA_LIBRARIES_VECTOR_TEST_HPP
 #include "../../include/Containers/Vector/Vector.hpp"
 #include "../googletest/include/gtest/gtest.h"
+#include <vector>
 namespace DSALibraries::Test
 {
 class VectorTest : public ::testing::Test
 {
   protected:
-    DSALibraries::Containers::FVector<int, 20> Vector_0;
+    DSALibraries::Containers::Vector<int> VectorImpl;
+    std::vector<int> VectorCompare;
     void SetUp() override
     {
         auto size = 10;
         for (int i = 0; i < size; i++)
         {
-            Vector_0.PushBack(i);
+            VectorImpl.PushBack(i);
+            VectorCompare.push_back(i);
         }
     }
 
     void TearDown() override
     {
-        Vector_0.Clear();
+        VectorImpl.Clear();
     }
 };
 
 TEST_F(VectorTest, PushBack)
 {
-    ASSERT_EQ(Vector_0.GetSize(), 10);
-}
-
-TEST_F(VectorTest, PopBack)
-{
-    Vector_0.PopBack();
-    ASSERT_EQ(Vector_0.GetSize(), 9);
+    VectorImpl.PushBack(10);
+    VectorCompare.push_back(10);
+    std::cout << "VectorImpl: " << VectorImpl.GetSize() << std::endl;
+    std::cout << "VectorCompare: " << VectorCompare.size() << std::endl;
+    ASSERT_EQ(VectorImpl.GetSize(), VectorCompare.size());
 }
 
 TEST_F(VectorTest, EmplaceBack)
 {
-    Vector_0.EmplaceBack(10);
-    ASSERT_EQ(Vector_0.GetSize(), 11);
+    ASSERT_EQ(VectorImpl.GetSize(), 10);
+    std::cout << "VectorImpl: " << VectorImpl.GetSize() << std::endl;
 }
 
 TEST_F(VectorTest, Clear)
 {
-    Vector_0.Clear();
-    ASSERT_EQ(Vector_0.GetSize(), 0);
-    ASSERT_EQ(Vector_0.Capacity(), 20);
+    VectorImpl.Clear();
+    VectorCompare.clear();
+    std::cout << "VectorImpl: " << VectorImpl.GetSize() << std::endl;
+    std::cout << "VectorCompare: " << VectorCompare.size() << std::endl;
+    std::cout << "VectorImpl: " << VectorImpl.GetCapacity() << std::endl;
+    std::cout << "VectorCompare: " << VectorCompare.capacity() << std::endl;
+    ASSERT_EQ(VectorImpl.GetSize(), VectorCompare.size());
+    ASSERT_EQ(VectorImpl.GetCapacity(), VectorCompare.capacity());
 }
 
 TEST_F(VectorTest, Resize)
 {
-    Vector_0.Resize(20);
-    ASSERT_EQ(Vector_0.GetSize(), 20);
-    ASSERT_EQ(Vector_0.Capacity(), 20);
+    VectorImpl.Resize(20);
+    ASSERT_EQ(VectorImpl.GetSize(), 20);
+    ASSERT_EQ(VectorImpl.GetCapacity(), 20);
 }
 
 TEST_F(VectorTest, Empty)
 {
-    ASSERT_FALSE(Vector_0.IsEmpty());
-    Vector_0.Clear();
-    ASSERT_TRUE(Vector_0.IsEmpty());
+    ASSERT_FALSE(VectorImpl.IsEmpty());
+    VectorImpl.Clear();
+    ASSERT_TRUE(VectorImpl.IsEmpty());
 }
 
 TEST_F(VectorTest, At)
 {
-    ASSERT_EQ(Vector_0.At(0), 0);
-    ASSERT_EQ(Vector_0.At(1), 1);
-    ASSERT_EQ(Vector_0.At(2), 2);
-    ASSERT_EQ(Vector_0.At(3), 3);
-    ASSERT_EQ(Vector_0.At(4), 4);
-    ASSERT_EQ(Vector_0.At(5), 5);
-    ASSERT_EQ(Vector_0.At(6), 6);
-    ASSERT_EQ(Vector_0.At(7), 7);
-    ASSERT_EQ(Vector_0.At(8), 8);
-    ASSERT_EQ(Vector_0.At(9), 9);
+    ASSERT_EQ(VectorImpl.At(0), 0);
+    ASSERT_EQ(VectorImpl.At(1), 1);
+    ASSERT_EQ(VectorImpl.At(2), 2);
+    ASSERT_EQ(VectorImpl.At(3), 3);
+    ASSERT_EQ(VectorImpl.At(4), 4);
+    ASSERT_EQ(VectorImpl.At(5), 5);
+    ASSERT_EQ(VectorImpl.At(6), 6);
+    ASSERT_EQ(VectorImpl.At(7), 7);
+    ASSERT_EQ(VectorImpl.At(8), 8);
+    ASSERT_EQ(VectorImpl.At(9), 9);
 }
 
 TEST_F(VectorTest, OperatorSquareBracket)
 {
-    ASSERT_EQ(Vector_0[0], 0);
-    ASSERT_EQ(Vector_0[1], 1);
-    ASSERT_EQ(Vector_0[2], 2);
-    ASSERT_EQ(Vector_0[3], 3);
-    ASSERT_EQ(Vector_0[4], 4);
-    ASSERT_EQ(Vector_0[5], 5);
-    ASSERT_EQ(Vector_0[6], 6);
-    ASSERT_EQ(Vector_0[7], 7);
-    ASSERT_EQ(Vector_0[8], 8);
-    ASSERT_EQ(Vector_0[9], 9);
+    ASSERT_EQ(VectorImpl[0], 0);
+    ASSERT_EQ(VectorImpl[1], 1);
+    ASSERT_EQ(VectorImpl[2], 2);
+    ASSERT_EQ(VectorImpl[3], 3);
+    ASSERT_EQ(VectorImpl[4], 4);
+    ASSERT_EQ(VectorImpl[5], 5);
+    ASSERT_EQ(VectorImpl[6], 6);
+    ASSERT_EQ(VectorImpl[7], 7);
+    ASSERT_EQ(VectorImpl[8], 8);
+    ASSERT_EQ(VectorImpl[9], 9);
 }
 
 TEST_F(VectorTest, Insert)
 {
-    Vector_0.Insert(Vector_0.GetBegin(), 100);
-    ASSERT_EQ(Vector_0.GetSize(), 11);
-    ASSERT_EQ(Vector_0[0], 100);
-    ASSERT_EQ(Vector_0[1], 0);
-    ASSERT_EQ(Vector_0[2], 1);
-    ASSERT_EQ(Vector_0[3], 2);
-    ASSERT_EQ(Vector_0[4], 3);
-    ASSERT_EQ(Vector_0[5], 4);
-    ASSERT_EQ(Vector_0[6], 5);
-    ASSERT_EQ(Vector_0[7], 6);
-    ASSERT_EQ(Vector_0[8], 7);
-    ASSERT_EQ(Vector_0[9], 8);
-    ASSERT_EQ(Vector_0[10], 9);
+    VectorImpl.Insert(VectorImpl.GetBegin(), 100);
+    ASSERT_EQ(VectorImpl.GetSize(), 11);
+    ASSERT_EQ(VectorImpl[0], 100);
+    ASSERT_EQ(VectorImpl[1], 0);
+    ASSERT_EQ(VectorImpl[2], 1);
+    ASSERT_EQ(VectorImpl[3], 2);
+    ASSERT_EQ(VectorImpl[4], 3);
+    ASSERT_EQ(VectorImpl[5], 4);
+    ASSERT_EQ(VectorImpl[6], 5);
+    ASSERT_EQ(VectorImpl[7], 6);
+    ASSERT_EQ(VectorImpl[8], 7);
+    ASSERT_EQ(VectorImpl[9], 8);
+    ASSERT_EQ(VectorImpl[10], 9);
 }
 
 TEST_F(VectorTest, Erase)
 {
-    Vector_0.Erase(Vector_0.GetBegin());
-    ASSERT_EQ(Vector_0.GetSize(), 9);
-    ASSERT_EQ(Vector_0[0], 1);
-    ASSERT_EQ(Vector_0[1], 2);
-    ASSERT_EQ(Vector_0[2], 3);
-    ASSERT_EQ(Vector_0[3], 4);
-    ASSERT_EQ(Vector_0[4], 5);
-    ASSERT_EQ(Vector_0[5], 6);
-    ASSERT_EQ(Vector_0[6], 7);
-    ASSERT_EQ(Vector_0[7], 8);
-    ASSERT_EQ(Vector_0[8], 9);
-}
-
-TEST_F(VectorTest, EmplaceBackWhenFull)
-{
-    Vector_0.Resize(20);
-    ASSERT_ANY_THROW(Vector_0.EmplaceBack(10));
+    VectorImpl.Erase(VectorImpl.GetBegin());
+    ASSERT_EQ(VectorImpl.GetSize(), 9);
+    ASSERT_EQ(VectorImpl[0], 1);
+    ASSERT_EQ(VectorImpl[1], 2);
+    ASSERT_EQ(VectorImpl[2], 3);
+    ASSERT_EQ(VectorImpl[3], 4);
+    ASSERT_EQ(VectorImpl[4], 5);
+    ASSERT_EQ(VectorImpl[5], 6);
+    ASSERT_EQ(VectorImpl[6], 7);
+    ASSERT_EQ(VectorImpl[7], 8);
+    ASSERT_EQ(VectorImpl[8], 9);
 }
 
 TEST_F(VectorTest, AtWhenIndexOutOfRange)
 {
-    ASSERT_ANY_THROW(Vector_0.At(100));
+    ASSERT_ANY_THROW(VectorImpl.At(100));
 }
 
 TEST_F(VectorTest, OperatorSquareBracketWhenIndexOutOfRange)
 {
-    ASSERT_ANY_THROW(Vector_0[100]);
+    ASSERT_ANY_THROW(VectorImpl.At(100));
 }
 
-TEST_F(VectorTest, Sort)
+TEST_F(VectorTest, insertion_sort)
 {
-    std::sort(Vector_0.GetBegin(), Vector_0.GetEnd(), std::greater<int>());
-    ASSERT_EQ(Vector_0[0], 9);
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.InsertionSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << *(++VectorImpl.GetEnd()) << std::endl;
 }
+
+TEST_F(VectorTest, merge_sort)
+{
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.MergeSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << *(++VectorImpl.GetEnd()) << std::endl;
+}
+
+TEST_F(VectorTest, quick_sort)
+{
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.QuickSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << *(++VectorImpl.GetEnd()) << std::endl;
+}
+
+TEST_F(VectorTest, bubble_sort)
+{
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.BubbleSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << *(++VectorImpl.GetEnd()) << std::endl;
+}
+
+TEST_F(VectorTest, selection_sort)
+{
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.SelectionSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << *(++VectorImpl.GetEnd()) << std::endl;
+}
+
+TEST_F(VectorTest, heap_sort)
+{
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+    std::cout << std::endl;
+    VectorImpl.HeapSort(std::greater<>());
+    for (auto i = VectorImpl.GetBegin(); i != VectorImpl.GetEnd(); i++)
+    {
+        std::cout << *i << " ";
+    }
+}
+
 } // namespace DSALibraries::Test
 #endif

@@ -5,33 +5,40 @@ namespace DSALibraries::Containers
 {
 template <typename T> struct DListIterator
 {
-    DListNodeBase* NodeBase;
+    DListNodeBase *NodeBase;
 
     using SelfAlias = DListIterator<T>;
     using NodeAlias = DListNode<T>;
     using ValueTypeAlias = T;
-    using PointerAlias = T*;
-    using ReferenceAlias = T&;
+    using PointerAlias = T *;
+    using ReferenceAlias = T &;
+
+    // Adaptive alias
+    using value_type = ValueTypeAlias;
+    using reference = ReferenceAlias;
+    using pointer = PointerAlias;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::bidirectional_iterator_tag;
 
     DListIterator() noexcept : NodeBase()
     {
     }
 
-    explicit DListIterator(DListNodeBase* nodeBase) noexcept : NodeBase(nodeBase)
+    explicit DListIterator(DListNodeBase *nodeBase) noexcept : NodeBase(nodeBase)
     {
     }
 
     ReferenceAlias operator*() const noexcept
     {
-        return *static_cast<DListNode<T>*>(this->NodeBase)->GetData();
+        return *static_cast<DListNode<T> *>(this->NodeBase)->GetData();
     }
 
     PointerAlias operator->() const noexcept
     {
-        return static_cast<DListNode<T>*>(this->NodeBase)->GetData();
+        return static_cast<DListNode<T> *>(this->NodeBase)->GetData();
     }
 
-    SelfAlias& operator++() noexcept
+    SelfAlias &operator++() noexcept
     {
         this->NodeBase = this->NodeBase->PointerNext;
         return *this;
@@ -44,7 +51,7 @@ template <typename T> struct DListIterator
         return temp;
     }
 
-    SelfAlias& operator--() noexcept
+    SelfAlias &operator--() noexcept
     {
         this->NodeBase = this->NodeBase->PointerPrev;
         return *this;
@@ -57,12 +64,12 @@ template <typename T> struct DListIterator
         return temp;
     }
 
-    friend bool operator!=(const DListIterator<T>& lhs, const DListIterator<T>& rhs) noexcept
+    friend bool operator!=(const DListIterator<T> &lhs, const DListIterator<T> &rhs) noexcept
     {
         return lhs.NodeBase != rhs.NodeBase;
     }
 
-    friend bool operator==(const DListIterator<T>& lhs, const DListIterator<T>& rhs) noexcept
+    friend bool operator==(const DListIterator<T> &lhs, const DListIterator<T> &rhs) noexcept
     {
         return lhs.NodeBase == rhs.NodeBase;
     }
@@ -94,37 +101,37 @@ template <typename T> struct DListIterator
 
 template <typename T> struct DListConstIterator
 {
-    const DListNodeBase* NodeBase;
+    const DListNodeBase *NodeBase;
 
     using SelfAlias = DListConstIterator<T>;
     using NodeAlias = DListNode<T>;
     using ValueTypeAlias = T;
-    using PointerAlias = const T*;
-    using ReferenceAlias = const T&;
+    using PointerAlias = const T *;
+    using ReferenceAlias = const T &;
 
     DListConstIterator() noexcept : NodeBase()
     {
     }
 
-    explicit DListConstIterator(const DListNodeBase* nodeBase) noexcept : NodeBase(nodeBase)
+    explicit DListConstIterator(const DListNodeBase *nodeBase) noexcept : NodeBase(nodeBase)
     {
     }
 
-    DListConstIterator(const DListIterator<T>& iter) noexcept : NodeBase(iter.NodeBase)
+    DListConstIterator(const DListIterator<T> &iter) noexcept : NodeBase(iter.NodeBase)
     {
     }
 
     ReferenceAlias operator*() const noexcept
     {
-        return *static_cast<const DListNode<T>*>(this->NodeBase)->GetData();
+        return *static_cast<const DListNode<T> *>(this->NodeBase)->GetData();
     }
 
     PointerAlias operator->() const noexcept
     {
-        return static_cast<const DListNode<T>*>(this->NodeBase)->GetData();
+        return static_cast<const DListNode<T> *>(this->NodeBase)->GetData();
     }
 
-    SelfAlias& operator++() noexcept
+    SelfAlias &operator++() noexcept
     {
         this->NodeBase = this->NodeBase->PointerNext;
         return *this;
@@ -137,7 +144,7 @@ template <typename T> struct DListConstIterator
         return temp;
     }
 
-    SelfAlias& operator--() noexcept
+    SelfAlias &operator--() noexcept
     {
         this->NodeBase = this->NodeBase->PointerPrev;
         return *this;
@@ -150,12 +157,12 @@ template <typename T> struct DListConstIterator
         return temp;
     }
 
-    friend bool operator!=(const DListConstIterator<T>& lhs, const DListConstIterator<T>& rhs) noexcept
+    friend bool operator!=(const DListConstIterator<T> &lhs, const DListConstIterator<T> &rhs) noexcept
     {
         return lhs.NodeBase != rhs.NodeBase;
     }
 
-    friend bool operator==(const DListConstIterator<T>& lhs, const DListConstIterator<T>& rhs) noexcept
+    friend bool operator==(const DListConstIterator<T> &lhs, const DListConstIterator<T> &rhs) noexcept
     {
         return lhs.NodeBase == rhs.NodeBase;
     }

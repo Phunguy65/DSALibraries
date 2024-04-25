@@ -27,11 +27,11 @@ template <typename T, typename Alloc> class SListBase
         {
         }
 
-        explicit SListCore(NodeAllocatorTypeAlias&& node) noexcept : NodeAllocatorTypeAlias(std::move(node)), NodeHead()
+        explicit SListCore(NodeAllocatorTypeAlias &&node) noexcept : NodeAllocatorTypeAlias(std::move(node)), NodeHead()
         {
         }
 
-        explicit SListCore(SListNodeBase&& head, NodeAllocatorTypeAlias&& node) noexcept
+        explicit SListCore(SListNodeBase &&head, NodeAllocatorTypeAlias &&node) noexcept
             : NodeHead(std::move(head)), NodeAllocatorTypeAlias(std::move(node))
         {
         }
@@ -46,17 +46,17 @@ template <typename T, typename Alloc> class SListBase
     using ConstIteratorAlias = SListConstIterator<T>;
     using AllocatorTypeAlias = Alloc;
 
-    NodeAllocatorTypeAlias& GetNodeAllocator() noexcept
+    NodeAllocatorTypeAlias &GetNodeAllocator() noexcept
     {
-        return *static_cast<NodeAllocatorTypeAlias*>(&this->LinkedListCore);
+        return *static_cast<NodeAllocatorTypeAlias *>(&this->LinkedListCore);
     }
 
-    const NodeAllocatorTypeAlias& GetNodeAllocator() const noexcept
+    const NodeAllocatorTypeAlias &GetNodeAllocator() const noexcept
     {
-        return *static_cast<const NodeAllocatorTypeAlias*>(&this->LinkedListCore);
+        return *static_cast<const NodeAllocatorTypeAlias *>(&this->LinkedListCore);
     }
 
-    TpAllocatorTypeAlias GetTAllocator() const noexcept
+    TpAllocatorTypeAlias GetTpAllocator() const noexcept
     {
         return TpAllocatorTypeAlias(GetNodeAllocator());
     }
@@ -68,16 +68,16 @@ template <typename T, typename Alloc> class SListBase
 
     SListBase() = default;
 
-    explicit SListBase(NodeAllocatorTypeAlias&& al) noexcept : LinkedListCore(std::move(al))
+    explicit SListBase(NodeAllocatorTypeAlias &&al) noexcept : LinkedListCore(std::move(al))
     {
     }
 
-    SListBase(SListBase&& list, NodeAllocatorTypeAlias&& al, std::true_type) noexcept
+    SListBase(SListBase &&list, NodeAllocatorTypeAlias &&al, std::true_type) noexcept
         : LinkedListCore(std::move(list.LinkedListCore.NodeHead), std::move(al))
     {
     }
 
-    SListBase(SListBase&& list, NodeAllocatorTypeAlias&& al) noexcept : LinkedListCore(std::move(al))
+    SListBase(SListBase &&list, NodeAllocatorTypeAlias &&al) noexcept : LinkedListCore(std::move(al))
     {
         if (list.GetNodeAllocator() == this->GetNodeAllocator())
         {
@@ -91,11 +91,11 @@ template <typename T, typename Alloc> class SListBase
     }
 
   protected:
-    template <typename... Args> NodeBaseAlias* InsertAfterInternal(ConstIteratorAlias pos, Args&&... args)
+    template <typename... Args> NodeBaseAlias *InsertAfterInternal(ConstIteratorAlias pos, Args &&...args)
     {
-        NodeBaseAlias* curr = const_cast<NodeBaseAlias*>(pos.NodeBase);
+        auto *curr = const_cast<NodeBaseAlias *>(pos.NodeBase);
 
-        NodeAlias* newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
+        NodeAlias *newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
 
         newNode->PointerNext = curr->PointerNext;
 
@@ -104,13 +104,13 @@ template <typename T, typename Alloc> class SListBase
         return curr->PointerNext;
     }
 
-    NodeBaseAlias* EraseAfterInternal(NodeBaseAlias* pos)
+    NodeBaseAlias *EraseAfterInternal(NodeBaseAlias *pos)
     {
-        NodeAlias* curr = static_cast<NodeAlias*>(pos->PointerNext);
+        auto *curr = static_cast<NodeAlias *>(pos->PointerNext);
 
         pos->PointerNext = curr->PointerNext;
 
-        this->GetTAllocator().destroy(curr->GetData());
+        this->GetTpAllocator().destroy(curr->GetData());
 
         curr->~NodeAlias();
 
@@ -118,17 +118,17 @@ template <typename T, typename Alloc> class SListBase
 
         return pos->PointerNext;
     }
-    NodeBaseAlias* EraseAfterInternal(NodeBaseAlias* pos, NodeBaseAlias* last)
+    NodeBaseAlias *EraseAfterInternal(NodeBaseAlias *pos, NodeBaseAlias *last)
     {
-        NodeAlias* curr = static_cast<NodeAlias*>(pos->PointerNext);
+        auto *curr = static_cast<NodeAlias *>(pos->PointerNext);
 
         while (curr != last)
         {
-            NodeAlias* temp = curr;
+            NodeAlias *temp = curr;
 
-            curr = static_cast<NodeAlias*>(curr->PointerNext);
+            curr = static_cast<NodeAlias *>(curr->PointerNext);
 
-            this->GetTAllocator().destroy(temp->GetData());
+            this->GetTpAllocator().destroy(temp->GetData());
 
             temp->~NodeAlias();
 
@@ -139,22 +139,22 @@ template <typename T, typename Alloc> class SListBase
         return last;
     }
 
-    NodeAlias* GetNode()
+    NodeAlias *GetNode()
     {
-        return static_cast<NodeAlias*>(this->LinkedListCore.NodeAllocatorTypeAlias::allocate(1));
+        return static_cast<NodeAlias *>(this->LinkedListCore.NodeAllocatorTypeAlias::allocate(1));
     }
 
-    void PutNode(SListNode<T>* node)
+    void PutNode(SListNode<T> *node)
     {
         this->LinkedListCore.NodeAllocatorTypeAlias::deallocate(node, 1);
     }
 
-    template <typename... Args> NodeAlias* CreateNodeInternal(Args&&... args)
+    template <typename... Args> NodeAlias *CreateNodeInternal(Args &&...args)
     {
-        NodeAlias* node = this->GetNode();
+        NodeAlias *node = this->GetNode();
         try
         {
-            this->GetTAllocator().construct(node->GetData(), std::forward<Args>(args)...);
+            this->GetTpAllocator().construct(node->GetData(), std::forward<Args>(args)...);
             node->PointerNext = nullptr;
         }
         catch (...)
@@ -164,12 +164,12 @@ template <typename T, typename Alloc> class SListBase
         return node;
     }
 
-    NodeAlias* CreateNodeInternal(const T& value)
+    NodeAlias *CreateNodeInternal(const T &value)
     {
-        NodeAlias* node = this->GetNode();
+        NodeAlias *node = this->GetNode();
         try
         {
-            this->GetTAllocator().construct(node->GetData(), value);
+            this->GetTpAllocator().construct(node->GetData(), value);
             node->PointerNext = nullptr;
         }
         catch (...)
@@ -180,30 +180,39 @@ template <typename T, typename Alloc> class SListBase
     }
 };
 
-template <typename T, typename Alloc = Allocator<T>> class SList : private SListBase<T, Alloc>
+template <typename T, typename Alloc = Allocator<T>> class SList : protected SListBase<T, Alloc>
 {
   private:
-    using SListBase = SListBase<T, Alloc>;
-    using NodeBaseAlias = typename SListBase::NodeBaseAlias;
-    using NodeAlias = typename SListBase::NodeAlias;
+    using SListBaseAlias = SListBase<T, Alloc>;
+    using NodeBaseAlias = typename SListBaseAlias::NodeBaseAlias;
+    using NodeAlias = typename SListBaseAlias::NodeAlias;
 
   public:
     using ValueTypeAlias = T;
-    using ReferenceAlias = ValueTypeAlias&;
-    using ConstReferenceAlias = const ValueTypeAlias&;
-    using IteratorAlias = typename SListBase::IteratorAlias;
-    using ConstIteratorAlias = typename SListBase::ConstIteratorAlias;
+    using ReferenceAlias = ValueTypeAlias &;
+    using ConstReferenceAlias = const ValueTypeAlias &;
+    using IteratorAlias = typename SListBaseAlias::IteratorAlias;
+    using ConstIteratorAlias = typename SListBaseAlias::ConstIteratorAlias;
     using SizeTypeAlias = std::size_t;
-    using AllocatorTypeAlias = typename SListBase::AllocatorTypeAlias;
+    using AllocatorTypeAlias = typename SListBaseAlias::AllocatorTypeAlias;
+    using NodeAllocatorTypeAlias = typename SListBaseAlias::NodeAllocatorTypeAlias;
 
-    using NodeAllocatorTypeAlias = typename SListBase::NodeAllocatorTypeAlias;
+    // Adaptive alias
+
+    using value_type [[maybe_unused]] = ValueTypeAlias;
+    using reference [[maybe_unused]] = ReferenceAlias;
+    using const_reference [[maybe_unused]] = ConstReferenceAlias;
+    using iterator [[maybe_unused]] = IteratorAlias;
+    using const_iterator [[maybe_unused]] = ConstIteratorAlias;
+    using size_type [[maybe_unused]] = SizeTypeAlias;
+    using allocator_type [[maybe_unused]] = AllocatorTypeAlias;
 
   private:
-    SList(SList&& sll, NodeAllocatorTypeAlias&& al, std::true_type) : SListBase(std::move(sll), std::move(al))
+    SList(SList &&sll, NodeAllocatorTypeAlias &&al, std::true_type) : SListBaseAlias(std::move(sll), std::move(al))
     {
     }
 
-    SList(SList&& sll, NodeAllocatorTypeAlias&& al, std::false_type) : SListBase(std::move(sll), std::move(al))
+    SList(SList &&sll, NodeAllocatorTypeAlias &&al, std::false_type) : SListBaseAlias(std::move(sll), std::move(al))
     {
         this->InsertAfterInternal(this->GetConstBeginFromHead(), sll.GetBegin(), sll.GetEnd());
     }
@@ -211,46 +220,47 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
   public:
     SList() noexcept = default;
 
-    explicit SList(const AllocatorTypeAlias& al) noexcept : SListBase(NodeAllocatorTypeAlias(al))
+    explicit SList(const AllocatorTypeAlias &al) noexcept : SListBaseAlias(NodeAllocatorTypeAlias(al))
     {
     }
 
-    explicit SList(SizeTypeAlias size, const AllocatorTypeAlias& al = AllocatorTypeAlias())
-        : SListBase(AllocatorTypeAlias(al))
+    explicit SList(SizeTypeAlias size, const AllocatorTypeAlias &al = AllocatorTypeAlias())
+        : SListBaseAlias(AllocatorTypeAlias(al))
     {
         DefaultInitializeInternal(size);
     }
 
-    SList(SizeTypeAlias size, const T& value, const AllocatorTypeAlias& al = AllocatorTypeAlias())
-        : SListBase(NodeAllocatorTypeAlias(al))
+    SList(SizeTypeAlias size, const T &value, const AllocatorTypeAlias &al = AllocatorTypeAlias())
+        : SListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         FillInitializeInternal(size, value);
     }
 
-    SList(const SList& sll) : SListBase(NodeAllocatorTypeAlias::select_on_container_copy_construction())
+    SList(const SList &sll) : SListBaseAlias(NodeAllocatorTypeAlias::select_on_container_copy_construction())
     {
         RangeInitializeInternal(sll.GetBegin(), sll.GetConstEnd());
     }
 
-    SList(SList&& sll, const AllocatorTypeAlias& al)
+    SList(SList &&sll, const AllocatorTypeAlias &al)
         : SList(std::move(sll), NodeAllocatorTypeAlias(al), typename NodeAllocatorTypeAlias::is_always_equal())
     {
     }
 
     template <typename InputIterator>
-    SList(InputIterator first, InputIterator last, const Alloc& al = Alloc()) : SListBase(NodeAllocatorTypeAlias(al))
+    SList(InputIterator first, InputIterator last, const Alloc &al = Alloc())
+        : SListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         RangeInitializeInternal(first, last);
     }
 
-    SList(std::initializer_list<T> il, const Alloc& al = Alloc()) : SListBase(NodeAllocatorTypeAlias(al))
+    SList(std::initializer_list<T> il, const Alloc &al = Alloc()) : SListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         RangeInitializeInternal(il.begin(), il.end());
     }
 
     ~SList() noexcept = default;
 
-    SList& operator=(const SList& list)
+    SList &operator=(const SList &list)
     {
         if (this != std::addressof(list))
         {
@@ -266,11 +276,59 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         return *this;
     }
 
-    SList& operator=(SList&& sll) noexcept
+    SList &operator=(SList &&sll) noexcept
     {
         this->Clear();
         this->MoveAssignInternal(std::move(sll), std::is_nothrow_move_assignable<AllocatorTypeAlias>());
     }
+
+    // Start Zone Adaptive Iterator
+    IteratorAlias begin() noexcept
+    {
+        return this->GetBegin();
+    }
+
+    ConstIteratorAlias begin() const noexcept
+    {
+        return this->GetConstBegin();
+    }
+
+    ConstIteratorAlias cbegin() const noexcept
+    {
+        return this->GetConstBegin();
+    }
+
+    IteratorAlias end() noexcept
+    {
+        return this->GetEnd();
+    }
+
+    ConstIteratorAlias end() const noexcept
+    {
+        return this->GetConstEnd();
+    }
+
+    [[maybe_unused]] ConstIteratorAlias cend() const noexcept
+    {
+        return this->GetConstEnd();
+    }
+
+    IteratorAlias before_begin() noexcept
+    {
+        return this->GetBeginFromHead();
+    }
+
+    ConstIteratorAlias before_begin() const noexcept
+    {
+        return this->GetConstBeginFromHead();
+    }
+
+    ConstIteratorAlias cbefore_begin() const noexcept
+    {
+        return this->GetConstBeginFromHead();
+    }
+
+    // End Zone Adaptive Iterator
 
     IteratorAlias GetBegin()
     {
@@ -324,22 +382,22 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     ReferenceAlias GetItemFront()
     {
-        NodeAlias* front = static_cast<NodeAlias*>(this->LinkedListCore.NodeHead.PointerNext);
+        auto *front = static_cast<NodeAlias *>(this->LinkedListCore.NodeHead.PointerNext);
         return *front->GetData();
     }
 
     ConstReferenceAlias GetItemFront() const
     {
-        NodeAlias* front = static_cast<NodeAlias*>(this->LinkedListCore.NodeHead.PointerNext);
+        auto *front = static_cast<NodeAlias *>(this->LinkedListCore.NodeHead.PointerNext);
         return *front->GetData();
     }
 
-    void PushFront(const T& value)
+    void PushFront(const T &value)
     {
         this->InsertAfterInternal(this->GetConstBeginFromHead(), value);
     }
 
-    void PushFront(T&& value)
+    void PushFront(T &&value)
     {
         this->InsertAfterInternal(this->GetConstBeginFromHead(), std::move(value));
     }
@@ -349,17 +407,17 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         this->EraseAfterInternal(&this->LinkedListCore.NodeHead);
     }
 
-    template <typename... Args> void EmplaceFront(Args&&... args)
+    template <typename... Args> void EmplaceFront(Args &&...args)
     {
         this->InsertAfterInternal(this->GetBeginFromHead(), std::forward<Args>(args)...);
     }
 
-    template <typename... Args> IteratorAlias EmplaceAfter(ConstIteratorAlias pos, Args&&... args)
+    template <typename... Args> IteratorAlias EmplaceAfter(ConstIteratorAlias pos, Args &&...args)
     {
         return IteratorAlias(this->InsertAfterInternal(pos, std::forward<Args>(args)...));
     }
 
-    void Assign(SizeTypeAlias size, const T& value)
+    void Assign(SizeTypeAlias size, const T &value)
     {
         this->Clear();
         this->AssignInternal(size, value, std::is_copy_assignable<T>());
@@ -371,17 +429,17 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         this->AssignInternal(first, last, std::is_copy_assignable<T>());
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias pos, const T& value)
+    IteratorAlias InsertAfter(ConstIteratorAlias pos, const T &value)
     {
         return IteratorAlias(this->InsertAfterInternal(pos, value));
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias pos, T&& value)
+    IteratorAlias InsertAfter(ConstIteratorAlias pos, T &&value)
     {
         return IteratorAlias(this->InsertAfterInternal(pos, std::move(value)));
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias pos, SizeTypeAlias size, const T& value)
+    IteratorAlias InsertAfter(ConstIteratorAlias pos, SizeTypeAlias size, const T &value)
     {
         if (size)
         {
@@ -390,7 +448,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
         else
         {
-            return IteratorAlias(const_cast<NodeBaseAlias*>(pos.NodeBase));
+            return IteratorAlias(const_cast<NodeBaseAlias *>(pos.NodeBase));
         }
     }
 
@@ -405,11 +463,11 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
         else
         {
-            return IteratorAlias(const_cast<NodeBaseAlias*>(pos.NodeBase));
+            return IteratorAlias(const_cast<NodeBaseAlias *>(pos.NodeBase));
         }
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, SList&& sll)
+    void SpliceAfter(ConstIteratorAlias pos, SList &&sll)
     {
         if (!sll.IsEmpty())
         {
@@ -417,7 +475,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, SList&& sll, ConstIteratorAlias it)
+    void SpliceAfter(ConstIteratorAlias pos, SList &&sll, ConstIteratorAlias it)
     {
         ConstIteratorAlias next = it;
         ++next;
@@ -427,34 +485,34 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
             return;
         }
 
-        NodeBaseAlias* current = const_cast<NodeBaseAlias*>(pos.NodeBase);
-        current->TransferAfter(const_cast<NodeBaseAlias*>(it.NodeBase), const_cast<NodeBaseAlias*>(next.NodeBase));
+        auto *current = const_cast<NodeBaseAlias *>(pos.NodeBase);
+        current->TransferAfter(const_cast<NodeBaseAlias *>(it.NodeBase), const_cast<NodeBaseAlias *>(next.NodeBase));
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, SList&& sll, ConstIteratorAlias first, ConstIteratorAlias last)
+    void SpliceAfter(ConstIteratorAlias pos, SList &&sll, ConstIteratorAlias first, ConstIteratorAlias last)
     {
         SpliceAfterInternal(pos, first, last);
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, SList& sll, ConstIteratorAlias first, ConstIteratorAlias last)
+    void SpliceAfter(ConstIteratorAlias pos, SList &sll, ConstIteratorAlias first, ConstIteratorAlias last)
     {
         this->SpliceAfter(pos, std::move(sll), first, last);
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, SList& sll)
+    void SpliceAfter(ConstIteratorAlias pos, SList &sll)
     {
         this->SpliceAfter(pos, std::move(sll));
     }
 
     IteratorAlias EraseAfter(ConstIteratorAlias pos)
     {
-        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(pos.NodeBase)));
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias *>(pos.NodeBase)));
     }
 
     IteratorAlias EraseAfter(ConstIteratorAlias pos, ConstIteratorAlias last)
     {
-        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(pos.NodeBase)),
-                             const_cast<NodeBaseAlias*>(last.NodeBase));
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias *>(pos.NodeBase)),
+                             const_cast<NodeBaseAlias *>(last.NodeBase));
     }
 
     void Resize(SizeTypeAlias size)
@@ -479,7 +537,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    void Resize(SizeTypeAlias size, const ValueTypeAlias& value)
+    void Resize(SizeTypeAlias size, const ValueTypeAlias &value)
     {
         IteratorAlias curr = this->GetBeginFromHead();
 
@@ -506,12 +564,12 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         this->EraseAfterInternal(&this->LinkedListCore.NodeHead, nullptr);
     }
 
-    void Remove(const ValueTypeAlias& value)
+    void Remove(const ValueTypeAlias &value)
     {
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
-        NodeBaseAlias* saveNode = nullptr;
+        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias *saveNode = nullptr;
 
-        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
+        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
         {
             if (*temp->GetData() == value)
             {
@@ -536,9 +594,9 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     template <typename Predicate> void RemoveIf(Predicate pred)
     {
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
 
-        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
+        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
         {
             if (pred(*temp->GetData()))
             {
@@ -551,19 +609,19 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    template <typename Compare> void Merge(SList&& sll, Compare comp)
+    template <typename Compare> void Merge(SList &&sll, Compare comp)
     {
         if (std::addressof(sll) == this)
         {
             return;
         }
 
-        NodeBaseAlias* node = static_cast<NodeBaseAlias*>(&this->LinkedListCore.NodeHead);
+        auto *node = static_cast<NodeBaseAlias *>(&this->LinkedListCore.NodeHead);
 
         while (node->PointerNext && sll.LinkedListCore.NodeHead.PointerNext)
         {
-            if (compare(*static_cast<NodeAlias*>(sll.LinkedListCore.NodeHead.PointerNext)->GetData(),
-                        *static_cast<NodeAlias*>(node->PointerNext)->GetData()))
+            if (compare(*static_cast<NodeAlias *>(sll.LinkedListCore.NodeHead.PointerNext)->GetData(),
+                        *static_cast<NodeAlias *>(node->PointerNext)->GetData()))
             {
                 node->TransferAfter(&sll.LinkedListCore.NodeHead, sll.LinkedListCore.NodeHead.PointerNext);
             }
@@ -577,49 +635,152 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    template <typename Compare> void Merge(SList& sll, Compare comp)
+    template <typename Compare> void Merge(SList &sll, Compare comp)
     {
         this->Merge(std::move(sll), comp);
     }
 
-    void Merge(SList&& sll)
+    void Merge(SList &&sll)
     {
         this->Merge(std::move(sll), std::less<T>());
     }
 
-    void Merge(SList& sll)
+    void Merge(SList &sll)
     {
         this->Merge(std::move(sll), std::less<T>());
     }
 
-    template <typename TCompare> void Sort(TCompare compare)
+    template <typename TBinaryPredicate> SizeTypeAlias Unique(TBinaryPredicate predicate)
     {
-        // selection sort
+        IteratorAlias first = this->GetBegin();
+        IteratorAlias last = this->GetEnd();
 
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
-
-        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
+        if (first == last)
         {
-            NodeBaseAlias* min = curr;
-            NodeBaseAlias* next = curr->PointerNext;
+            return 0;
+        }
 
-            while (NodeAlias* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
-            {
-                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(min->PointerNext)->GetData()))
-                {
-                    min = next;
-                }
-                next = next->PointerNext;
-            }
+        SList toDestroy(this->GetAllocator());
+        SizeTypeAlias removed [[maybe_unused]] = 0;
+        IteratorAlias next = first;
 
-            if (min != curr)
+        while (++next != last)
+        {
+            if (predicate(*first, *next))
             {
-                curr->TransferAfter(min, min->PointerNext);
+                toDestroy.SpliceAfter(toDestroy.GetConstBeginFromHead(), *this, first);
+                ++removed;
             }
             else
             {
-                curr = curr->PointerNext;
+                first = next;
             }
+            next = first;
+        }
+
+        return removed;
+    }
+
+    SizeTypeAlias Unique()
+    {
+        return this->Unique(std::equal_to<T>());
+    }
+    template <typename TCompare> void Sort(TCompare compare)
+    {
+        // This is a merge sort implementation.
+
+        IteratorAlias pLeft;
+        IteratorAlias pRight;
+        IteratorAlias pNode;
+        IteratorAlias pHead;
+        IteratorAlias pTail;
+
+        SizeTypeAlias listSize = 1;
+        SizeTypeAlias numberOfMerges;
+        SizeTypeAlias leftSize;
+        SizeTypeAlias rightSize;
+
+        // If the list is empty or has only one element, it is already sorted.
+        if (this->IsEmpty() || this->GetBegin().PointerNext() == this->GetEnd())
+        {
+            return;
+        }
+
+        while (true)
+        {
+            pLeft = this->GetBegin();
+            pHead = this->GetBeginFromHead();
+            pTail = this->GetBeginFromHead();
+
+            numberOfMerges = 0;
+
+            while (pLeft != this->GetEnd())
+            {
+                ++numberOfMerges;
+                pRight = pLeft;
+                leftSize = 0;
+
+                for (SizeTypeAlias i = 0; i < listSize; ++i)
+                {
+                    ++leftSize;
+                    ++pRight;
+                    if (pRight == this->GetEnd())
+                    {
+                        break;
+                    }
+                }
+
+                rightSize = listSize;
+
+                while (leftSize > 0 || (rightSize > 0 && pRight != this->GetEnd()))
+                {
+                    if (leftSize == 0)
+                    {
+                        pNode = pRight;
+                        ++pRight;
+                        --rightSize;
+                    }
+                    else if (rightSize == 0 || pRight == this->GetEnd())
+                    {
+                        pNode = pLeft;
+                        ++pLeft;
+                        --leftSize;
+                    }
+                    else if (!compare(*pRight, *pLeft))
+                    {
+                        pNode = pLeft;
+                        ++pLeft;
+                        --leftSize;
+                    }
+                    else
+                    {
+                        pNode = pRight;
+                        ++pRight;
+                        --rightSize;
+                    }
+
+                    if (pHead == this->GetBeginFromHead())
+                    {
+                        pHead.NodeBase->PointerNext = pNode.NodeBase;
+                        pHead = pNode;
+                        pTail = pNode;
+                    }
+                    else
+                    {
+                        pTail.NodeBase->PointerNext = pNode.NodeBase;
+                        pTail = pNode;
+                    }
+                    pTail.NodeBase->PointerNext = nullptr;
+                }
+                pLeft = pRight;
+            }
+
+            if (numberOfMerges <= 1)
+            {
+                return;
+            }
+
+            listSize *= 2;
         }
     }
 
@@ -628,9 +789,39 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         this->Sort(std::less<T>());
     }
 
-    void Swap(SList& sll) noexcept
+    // Zone of DSA
+    template <typename TCompare> void DSASort(unsigned choice, TCompare compare)
+    {
+        switch (choice)
+        {
+        case 1:
+            this->InsertionSort(compare);
+            break;
+        case 2:
+            this->SelectionSort(compare);
+            break;
+        case 3:
+            this->BubbleSort(compare);
+            break;
+        case 4:
+            this->QuickSort(compare);
+            break;
+        case 5:
+            this->HeapSort(compare);
+            break;
+        default:
+            this->Sort(compare);
+            break;
+        }
+    }
+
+    void Swap(SList &sll) noexcept
     {
         std::swap(this->LinkedListCore.NodeHead.PointerNext, sll.LinkedListCore.NodeHead.PointerNext);
+        if (NodeAllocatorTypeAlias::propagate_on_container_swap::value)
+        {
+            std::swap(this->GetNodeAllocator(), sll.GetNodeAllocator());
+        }
     }
 
     void Reverse() noexcept
@@ -639,9 +830,9 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
     }
 
   private:
-    void FillInitializeInternal(SizeTypeAlias size, const T& value)
+    void FillInitializeInternal(SizeTypeAlias size, const T &value)
     {
-        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
         while (size)
         {
             temp->PointerNext = this->CreateNodeInternal(value);
@@ -652,7 +843,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     void DefaultInitializeInternal(SizeTypeAlias size)
     {
-        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
         while (size)
         {
             temp->PointerNext = this->CreateNodeInternal();
@@ -678,11 +869,11 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    void AssignInternal(SizeTypeAlias size, const T& value, std::true_type)
+    void AssignInternal(SizeTypeAlias size, const T &value, std::true_type)
     {
-        IteratorAlias* prev = this->GetBeginFromHead();
-        IteratorAlias* curr = this->GetBegin();
-        IteratorAlias* last = this->GetEnd();
+        IteratorAlias *prev = this->GetBeginFromHead();
+        IteratorAlias *curr = this->GetBegin();
+        IteratorAlias *last = this->GetEnd();
 
         while (curr != last && size)
         {
@@ -702,7 +893,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    void AssignInternal(SizeTypeAlias size, const T& value, std::false_type)
+    void AssignInternal(SizeTypeAlias size, const T &value, std::false_type)
     {
         this->Clear();
         this->FillInitializeInternal(size, value);
@@ -710,11 +901,11 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     IteratorAlias SpliceAfterInternal(ConstIteratorAlias pos, ConstIteratorAlias first, ConstIteratorAlias last)
     {
-        NodeBaseAlias* temp = const_cast<NodeBaseAlias*>(pos.NodeBase);
+        NodeBaseAlias *temp = const_cast<NodeBaseAlias *>(pos.NodeBase);
 
-        NodeBaseAlias* nextOtherNodeBase = const_cast<NodeBaseAlias*>(first.NodeBase);
+        NodeBaseAlias *nextOtherNodeBase = const_cast<NodeBaseAlias *>(first.NodeBase);
 
-        NodeBaseAlias* end = nextOtherNodeBase;
+        NodeBaseAlias *end = nextOtherNodeBase;
 
         while (end && end->PointerNext != last.NodeBase)
         {
@@ -733,7 +924,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     template <typename InputIterator> void RangeInitializeInternal(InputIterator first, InputIterator last)
     {
-        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
         while (first != last)
         {
             temp->PointerNext = this->CreateNodeInternal(*first);
@@ -742,14 +933,14 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
         }
     }
 
-    void MoveAssignInternal(SList&& sll, std::true_type)
+    void MoveAssignInternal(SList &&sll, std::true_type)
     {
         this->Clear();
         this->GetNodeAllocator() = std::move(sll.GetNodeAllocator());
         this->LinkedListCore.NodeHead = std::move(sll.LinkedListCore.NodeHead);
     }
 
-    void MoveAssignInternal(SList&& sll, std::false_type)
+    void MoveAssignInternal(SList &&sll, std::false_type)
     {
         if (this->GetNodeAllocator() == sll.GetNodeAllocator())
         {
@@ -770,9 +961,9 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
 
     template <typename InputIterator> void AssignInternal(InputIterator first, InputIterator last, std::true_type)
     {
-        IteratorAlias* prev = this->GetBeginFromHead();
-        IteratorAlias* curr = this->GetBegin();
-        IteratorAlias* end = this->GetEnd();
+        IteratorAlias *prev = this->GetBeginFromHead();
+        IteratorAlias *curr = this->GetBegin();
+        IteratorAlias *end = this->GetEnd();
 
         while (curr != end && first != last)
         {
@@ -791,9 +982,227 @@ template <typename T, typename Alloc = Allocator<T>> class SList : private SList
             this->EraseAfter(prev, end);
         }
     }
+
+  public:
+    // These sortable function are only used for DSA
+    template <typename TCompare> void InsertionSort(TCompare compare)
+    {
+        // this is an insertion sort implementation
+        if (this->IsEmpty() || this->GetBegin().PointerNext() == this->GetEnd())
+        {
+            return;
+        }
+
+        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
+        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        {
+            NodeBaseAlias *next = curr->PointerNext;
+            while (auto *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            {
+                if (compare(*nextTemp->GetData(), *temp->GetData()))
+                {
+                    curr->TransferAfter(next, nextTemp);
+                }
+                else
+                {
+                    next = next->PointerNext;
+                }
+            }
+            curr = curr->PointerNext;
+        }
+    }
+
+    template <typename TCompare> void SelectionSort(TCompare compare)
+    {
+        // This is a selection sort implementation
+
+        if (this->IsEmpty() || this->GetBegin().PointerNext() == this->GetEnd())
+        {
+            return;
+        }
+
+        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
+
+        while (NodeAlias *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        {
+            NodeBaseAlias *min = curr;
+            NodeBaseAlias *next = curr->PointerNext;
+
+            while (NodeAlias *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            {
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias *>(min->PointerNext)->GetData()))
+                {
+                    min = next;
+                }
+                next = next->PointerNext;
+            }
+
+            if (min != curr)
+            {
+                curr->TransferAfter(min, min->PointerNext);
+            }
+            else
+            {
+                curr = curr->PointerNext;
+            }
+        }
+    }
+
+    template <typename TCompare> void BubbleSort(TCompare compare)
+    {
+        // This is a bubble sort implementation
+
+        if (this->IsEmpty() || this->GetBegin().PointerNext() == this->GetEnd())
+        {
+            return;
+        }
+
+        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
+        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        {
+            NodeBaseAlias *next = curr->PointerNext;
+            while (auto *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            {
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias *>(next)->GetData()))
+                {
+                    curr->TransferAfter(next, nextTemp);
+                }
+                else
+                {
+                    next = next->PointerNext;
+                }
+            }
+            curr = curr->PointerNext;
+        }
+    }
+
+  private:
+    template <typename TCompare> IteratorAlias QuickSortHelper(TCompare compare, IteratorAlias begin, IteratorAlias end)
+    {
+        if (begin == end || begin.PointerNext() == end)
+        {
+            return begin;
+        }
+
+        IteratorAlias pivot = PartitionForQuickSortHelper(compare, begin, end);
+
+        QuickSortHelper(compare, begin, pivot);
+        QuickSortHelper(compare, pivot.PointerNext(), end);
+
+        return pivot;
+    }
+
+    template <typename TCompare>
+    IteratorAlias PartitionForQuickSortHelper(TCompare compare, IteratorAlias begin, IteratorAlias end)
+    {
+        IteratorAlias pivot = begin;
+        IteratorAlias i = begin;
+        IteratorAlias j = begin.PointerNext();
+
+        while (j != end)
+        {
+            if (compare(*j, *pivot))
+            {
+                ++i;
+                std::swap(*i, *j);
+            }
+            ++j;
+        }
+
+        std::swap(*i, *pivot);
+
+        return i;
+    }
+
+    template <typename TCompare> void HeapifyHelper(SizeTypeAlias root, SizeTypeAlias length, TCompare compare)
+    {
+        SizeTypeAlias largest = root;
+        SizeTypeAlias left = 2 * root + 1;
+        SizeTypeAlias right = 2 * root + 2;
+
+        if (left < length && !compare(*FindForHeapSortHelper(left), *FindForHeapSortHelper(largest)))
+        {
+            largest = left;
+        }
+
+        if (right < length && !compare(*FindForHeapSortHelper(right), *FindForHeapSortHelper(largest)))
+        {
+            largest = right;
+        }
+
+        if (largest != root)
+        {
+            SwapForHeapSort(root, largest);
+            HeapifyHelper(largest, length, compare);
+        }
+    }
+
+    void SwapForHeapSort(SizeTypeAlias root, SizeTypeAlias left)
+    {
+        IteratorAlias rootIter = this->GetBegin();
+        IteratorAlias leftIter = this->GetBegin();
+
+        for (SizeTypeAlias i = 0; i < root && rootIter.PointerNext() != this->GetEnd(); i++)
+        {
+            ++rootIter;
+        }
+
+        for (SizeTypeAlias i = 0; i < left && leftIter.PointerNext() != this->GetEnd(); i++)
+        {
+            ++leftIter;
+        }
+
+        std::swap(*rootIter, *leftIter);
+    }
+
+    IteratorAlias FindForHeapSortHelper(SizeTypeAlias index)
+    {
+        IteratorAlias iter = this->GetBegin();
+        for (SizeTypeAlias i = 0; i < index && iter != this->GetEnd(); i++)
+        {
+            ++iter;
+        }
+        return iter;
+    }
+
+  public:
+    template <typename TCompare> void QuickSort(TCompare compare)
+    {
+        if (this->IsEmpty() || this->GetBegin().PointerNext() == this->GetEnd())
+        {
+            return;
+        }
+
+        QuickSortHelper(compare, this->GetBegin(), this->GetEnd());
+    }
+
+    template <typename TCompare> void HeapSort(TCompare compare)
+    {
+        SizeTypeAlias length = this->GetSize();
+
+        if (length <= 1)
+        {
+            return;
+        }
+
+        for (SizeTypeAlias i = length / 2 - 1; i >= 0; i--)
+        {
+            HeapifyHelper(i, length, compare);
+            if (i == 0)
+            {
+                break;
+            }
+        }
+
+        for (SizeTypeAlias i = length - 1; i > 0; --i)
+        {
+            SwapForHeapSort(0, i);
+            HeapifyHelper(0, i, compare);
+        }
+    }
 };
 
-template <typename T, typename Alloc> bool operator==(const SList<T, Alloc>& lhs, const SList<T, Alloc>& rhs)
+template <typename T, typename Alloc> bool operator==(const SList<T, Alloc> &lhs, const SList<T, Alloc> &rhs)
 {
     if (lhs.GetSize() != rhs.GetSize())
     {
@@ -813,12 +1222,12 @@ template <typename T, typename Alloc> bool operator==(const SList<T, Alloc>& lhs
     return true;
 }
 
-template <typename T, typename Alloc> inline bool operator!=(const SList<T, Alloc>& lhs, const SList<T, Alloc>& rhs)
+template <typename T, typename Alloc> inline bool operator!=(const SList<T, Alloc> &lhs, const SList<T, Alloc> &rhs)
 {
     return !(lhs == rhs);
 }
 
-template <typename T, typename Alloc> inline void Swap(SList<T, Alloc>& lhs, SList<T, Alloc>& rhs) noexcept
+template <typename T, typename Alloc> inline void Swap(SList<T, Alloc> &lhs, SList<T, Alloc> &rhs) noexcept
 {
     lhs.Swap(rhs);
 }

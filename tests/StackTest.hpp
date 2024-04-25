@@ -10,7 +10,7 @@
 using namespace DSALibraries::Containers;
 namespace DSALibraries
 {
-namespace ContainersTests
+namespace Test
 {
 class StackTest : public ::testing::Test
 {
@@ -43,7 +43,7 @@ TEST_F(StackTest, Push)
     ASSERT_EQ(Stack_0.GetSize(), 5);
     ASSERT_EQ(Stack_1.GetSize(), 10000);
 }
-} // namespace ContainersTests
+} // namespace Test
 } // namespace DSALibraries
 
 #endif // STACKTEST_H

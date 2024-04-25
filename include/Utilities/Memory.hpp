@@ -9,7 +9,7 @@ namespace DSALibraries::Utilities
 {
 
 template <typename TForwardIterator, typename T>
-TForwardIterator UnintializedFill(TForwardIterator first, TForwardIterator last, const T &value)
+TForwardIterator UninitializedFill(TForwardIterator first, TForwardIterator last, const T &value)
 {
     using ValueType = typename std::iterator_traits<TForwardIterator>::value_type;
 
@@ -36,14 +36,14 @@ TForwardIterator UnintializedFill(TForwardIterator first, TForwardIterator last,
 }
 
 /*
-@description: UnintializedFillElements is a helper function that fills a range of elements with a given value.
+@description: UninitializedFillElements is a helper function that fills a range of elements with a given value.
 @param {TForwardIterator} first: The beginning of the range.
 @param {TSize} count: The number of elements to fill.
-@param {T} value: The value to fill the elements with.
+@param {TIterator} value: The value to fill the elements with.
 @return {TForwardIterator}: The iterator pointing to the end of the range.
 */
 template <typename TForwardIterator, typename TSize, typename T>
-TForwardIterator UnintializedFillElements(TForwardIterator first, TSize count, const T &value)
+TForwardIterator UninitializedFillElements(TForwardIterator first, TSize count, const T &value)
 {
     using ValueType = typename std::iterator_traits<TForwardIterator>::value_type;
 
@@ -72,7 +72,7 @@ TForwardIterator UnintializedFillElements(TForwardIterator first, TSize count, c
 
 /*
 @description: DestroyAt is a helper function that destroys an element.
-@param {T} element: The element to destroy.
+@param {TIterator} element: The element to destroy.
 @return {void}
 @note: This function is a template function that uses SFINAE to determine if the element is an array or not.
 */
@@ -82,7 +82,7 @@ template <typename T> constexpr void DestroyAt(T *element)
     {
         for (auto &item : *element)
         {
-            DestroyAt(&item);
+            (DestroyAt)(std::addressof(item));
         }
     }
     else
@@ -113,7 +113,7 @@ template <typename TIterator, typename TSize> constexpr TIterator DestroyElement
 @param {TIterator} end: The end of the range.
 @return {void}
 */
-template <typename TIterator> constexpr void DestroyRange(TIterator begin, TIterator end)
+template <typename TIterator> constexpr void Destroy(TIterator begin, TIterator end)
 {
     for (; begin != end; ++begin)
     {
@@ -122,7 +122,7 @@ template <typename TIterator> constexpr void DestroyRange(TIterator begin, TIter
 }
 
 /*
-@description: UnintializedCopy is a helper function that copies a range of elements to a new range.
+@description: UninitializedCopy is a helper function that copies a range of elements to a new range.
 @param {TInputIterator} first: The beginning of the range to copy.
 @param {TInputIterator} last: The end of the range to copy.
 @param {TOutputIterator} result: The beginning of the range to copy to.
@@ -134,7 +134,7 @@ template <typename TInputIterator, typename TOutputIterator>
 typename std::enable_if<
     !std::is_trivially_constructible<typename std::iterator_traits<TOutputIterator>::value_type>::value,
     TOutputIterator>::type
-UnintializedCopy(TInputIterator first, TInputIterator last, TOutputIterator result)
+UninitializedCopy(TInputIterator first, TInputIterator last, TOutputIterator result)
 {
     using ValueType = typename std::iterator_traits<TOutputIterator>::value_type;
 
@@ -177,7 +177,7 @@ template <typename TInputIterator, typename TOutputIterator>
 typename std::enable_if<
     std::is_trivially_constructible<typename std::iterator_traits<TOutputIterator>::value_type>::value,
     TOutputIterator>::type
-UnintializedCopy(TInputIterator first, TInputIterator last, TOutputIterator result)
+UninitializedCopy(TInputIterator first, TInputIterator last, TOutputIterator result)
 {
     return DSALibraries::Utilities::Copy(first, last, result);
 }
@@ -194,16 +194,16 @@ UnintializedCopy(TInputIterator first, TInputIterator last, TOutputIterator resu
  * @return TOutputIterator
  */
 template <typename TInputIterator, typename TSize, typename TOutputIterator>
-TOutputIterator UnintializedCopyElements(TInputIterator first, TSize count, TOutputIterator result)
+TOutputIterator UninitializedCopyElements(TInputIterator first, TSize count, TOutputIterator result)
 {
-    return Utilities::UnintializedCopy(first, first + count, result);
+    return Utilities::UninitializedCopy(first, first + count, result);
 }
 
 /**
  * @brief Create a Default At object
  *
  * @tparam T
- * @return std::enable_if<std::is_trivially_constructible<T>::value, void>::type
+ * @return std::enable_if<std::is_trivially_constructible<TIterator>::value, void>::type
  */
 template <typename T>
 typename std::enable_if<std::is_trivially_constructible<T>::value, void>::type CreateDefaultAt(T *);
@@ -213,7 +213,7 @@ typename std::enable_if<std::is_trivially_constructible<T>::value, void>::type C
  *
  * @tparam T
  * @param pValue
- * @return std::enable_if<!std::is_trivially_constructible<T>::value, void>::type
+ * @return std::enable_if<!std::is_trivially_constructible<TIterator>::value, void>::type
  */
 template <typename T>
 typename std::enable_if<!std::is_trivially_constructible<T>::value, void>::type CreateDefaultAt(T *pValue)
@@ -265,7 +265,7 @@ template <typename TInputIterator, typename TOutputIterator>
 typename std::enable_if<
     !std::is_trivially_constructible<typename std::iterator_traits<TOutputIterator>::value_type>::value,
     TOutputIterator>::type
-UnintializedMove(TInputIterator first, TInputIterator last, TOutputIterator result)
+UninitializedMove(TInputIterator first, TInputIterator last, TOutputIterator result)
 {
     using ValueType = typename std::iterator_traits<TOutputIterator>::value_type;
 
@@ -285,9 +285,71 @@ template <typename TInputIterator, typename TOutputIterator>
 typename std::enable_if<
     std::is_trivially_constructible<typename std::iterator_traits<TOutputIterator>::value_type>::value,
     TOutputIterator>::type
-UnintializedMove(TInputIterator first, TInputIterator last, TOutputIterator result)
+UninitializedMove(TInputIterator first, TInputIterator last, TOutputIterator result)
 {
     return DSALibraries::Utilities::Move(first, last, result);
 }
+
+template <typename TForwardIterator> void UnInitializedDefaultConstruct(TForwardIterator first, TForwardIterator last)
+{
+    using ValueType = typename std::iterator_traits<TForwardIterator>::value_type;
+
+    TForwardIterator current = first;
+
+    try
+    {
+        while (current != last)
+        {
+            ::new (const_cast<void *>(static_cast<const volatile void *>(std::addressof(*current)))) ValueType();
+            ++current;
+        }
+    }
+    catch (...)
+    {
+        Destroy(first, current);
+        throw;
+    }
+}
+
+template <typename TForwardIterator, typename TSize>
+TForwardIterator UnInitializedDefaultConstructElements(TForwardIterator first, TSize count)
+{
+    using ValueType = typename std::iterator_traits<TForwardIterator>::value_type;
+
+    TForwardIterator current = first;
+
+    try
+    {
+        while (count > 0)
+        {
+            ::new (const_cast<void *>(static_cast<const volatile void *>(std::addressof(*current)))) ValueType();
+            ++current;
+            --count;
+        }
+        return current;
+    }
+    catch (...)
+    {
+        Destroy(first, current);
+        throw;
+    }
+}
+
+template <typename TVector> struct ShrinkToFitHelper
+{
+    constexpr static bool DoIt(TVector &vector) noexcept
+    {
+        try
+        {
+            TVector(std::move(vector.GetBegin()), std::move(vector.GetEnd()), vector.GetAllocator()).Swap(vector);
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+        return false;
+    }
+};
 } // namespace DSALibraries::Utilities
 #endif // DSA_UTILITIES_HELPERS_HPP
