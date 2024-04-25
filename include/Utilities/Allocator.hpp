@@ -8,31 +8,14 @@ namespace DSALibraries::Utilities
 {
 template <typename T> class Allocator;
 
-template <> class Allocator<void>
-{
-  public:
-    using value_type = void;
-    using pointer = void*;
-    using const_pointer = void const*;
-    using void_pointer = void*;
-    using const_void_pointer = void const*;
-
-    template <typename U> struct Rebind
-    {
-        typedef Allocator<U> other;
-    };
-};
-
 template <typename T> class Allocator
 {
   public:
     using value_type = T;
-
-    using pointer = value_type*;
+    using pointer = value_type *;
     using const_pointer = typename std::pointer_traits<pointer>::template rebind<value_type const>;
     using void_pointer = typename std::pointer_traits<pointer>::template rebind<void>;
     using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
-
     using difference_type = typename std::pointer_traits<pointer>::difference_type;
     using size_type = std::make_unsigned_t<difference_type>;
 
@@ -43,32 +26,33 @@ template <typename T> class Allocator
 
     Allocator() noexcept = default; // not required, unless used
 
-    template <typename U> Allocator(Allocator<U> const&) noexcept
+    template <typename U> constexpr Allocator(Allocator<U> const &) noexcept
     {
     }
 
-    constexpr value_type* // Use pointer if pointer is not a value_type*
-    allocate(std::size_t n)
+    [[nodiscard]] value_type *allocate(std::size_t n,
+                                       [[maybe_unused]] const void * = static_cast<const void *>(nullptr))
     {
-        return static_cast<value_type*>(::operator new(n * sizeof(value_type)));
+        return static_cast<value_type *>(::operator new(n * sizeof(value_type)));
     }
 
-    void deallocate(value_type* pValueType, std::size_t) noexcept // Use pointer if pointer is not a value_type*
+    void deallocate(value_type *pValueType,
+                    [[maybe_unused]] std::size_t) noexcept // Use pointer if pointer is not a value_type*
     {
         ::operator delete(pValueType);
     }
 
-    template <typename U, typename... Args> void construct(U* p, Args&&... args)
+    template <typename U, typename... Args> void construct(U *p, Args &&...args)
     {
-        ::new ((void*)p) U(std::forward<Args>(args)...);
+        ::new ((void *)p) U(std::forward<Args>(args)...);
     }
 
-    template <typename U> void destroy(U* p)
+    template <typename U> void destroy(U *p)
     {
         p->~U();
     }
 
-    [[nodiscard]] std::size_t max_size() const noexcept
+    [[nodiscard]] constexpr std::size_t max_size() const noexcept
     {
         return std::numeric_limits<size_type>::max() / sizeof(value_type);
     }
@@ -78,15 +62,18 @@ template <typename T> class Allocator
         return *this;
     }
 
-    using is_always_equal = std::true_type;
+    using is_always_equal [[maybe_unused]] = std::true_type;
+    using propagate_on_container_copy_assignment = std::true_type;
+    using propagate_on_container_move_assignment = std::true_type;
+    using propagate_on_container_swap = std::true_type;
 };
 
-template <typename T, typename U> bool operator==(Allocator<T> const&, Allocator<U> const&) noexcept
+template <typename T, typename U> bool operator==(Allocator<T> const &, Allocator<U> const &) noexcept
 {
     return true;
 }
 
-template <typename T, typename U> bool operator!=(Allocator<T> const& x, Allocator<U> const& y) noexcept
+template <typename T, typename U> bool operator!=(Allocator<T> const &x, Allocator<U> const &y) noexcept
 {
     return !(x == y);
 }

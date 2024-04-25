@@ -10,14 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     message(STATUS "This project has a top-level one called [${CMAKE_PROJECT_NAME}]")
-else()
+else ()
     message(STATUS "This project is a top-level one")
-endif()
+endif ()
 
 FetchContent_Declare(
-       googletest
-       URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-       DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        googletest
+        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -30,6 +30,8 @@ add_library(${PROJECT_NAME} STATIC
         include/Containers/Stack/Stack.hpp
         include/Utilities/Exception.hpp
         include/Utilities/Allocator.hpp
+        include/Utilities/Memory.hpp
+        include/Utilities/Algorithm.hpp
         include/Containers/List/List.hpp
         include/Containers/List/ListIterator.hpp
         include/Containers/List/ListNode.hpp
@@ -45,24 +47,31 @@ add_library(${PROJECT_NAME} STATIC
         include/Containers/CList/CList.hpp
         include/Containers/CList/CListIterator.hpp
         include/Containers/CList/CListNode.hpp
-        include/Containers/CList/CListExceptions.hpp)
-
+        include/Containers/CList/CListExceptions.hpp
+        include/Containers/Vector/VectorBase.hpp
+        include/Containers/Vector/VectorExceptions.hpp
+        include/Containers/Vector/Vector.hpp
+        include/Containers/Vector/VectorIterator.hpp
+        include/Utilities/AlignedBuffer.hpp)
 
 
 target_sources(${PROJECT_NAME}
-    PRIVATE
+        PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME}
-    PRIVATE
+        PRIVATE
         # where the library itself will look for its internal headers
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-    PUBLIC
+        PUBLIC
         # where top-level project will look for the library's public headers
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Stack>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/List>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/SList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/DList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/CList>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Vector>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Utilities>
         # where external projects will look for the library's public headers
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -77,30 +86,30 @@ target_link_libraries(tests gtest_main ${PROJECT_NAME})
 gtest_discover_tests(tests)
 
 
-
-
 # totally optional listing of include directories
 get_property(inclds
-    TARGET ${PROJECT_NAME}
-    PROPERTY INCLUDE_DIRECTORIES
+        TARGET ${PROJECT_NAME}
+        PROPERTY INCLUDE_DIRECTORIES
 )
 message(STATUS "Listing include directories for ${PROJECT_NAME}...")
 # "dumb" listing with "raw" generator expressions on configuration
-foreach(pth ${inclds})
+foreach (pth ${inclds})
     message(STATUS "  ${pth}")
-endforeach()
+endforeach ()
 # actually evaluated generator expressions printed to file on generation
 string(JOIN "\n" includeDirectories ${inclds})
 file(GENERATE
-    OUTPUT "${CMAKE_BINARY_DIR}/include-directories.txt"
-    CONTENT ${includeDirectories}
+        OUTPUT "${CMAKE_BINARY_DIR}/include-directories.txt"
+        CONTENT ${includeDirectories}
 )
 
 # without it public headers won't get installed
 set(public_headers
-    include/Containers/Stack/Stack.hpp
+        include/Containers/Stack/Stack.hpp
         include/Utilities/Exception.hpp
         include/Utilities/Allocator.hpp
+        include/Utilities/Memory.hpp
+        include/Utilities/Algorithm.hpp
         include/Containers/List/List.hpp
         include/Containers/List/ListIterator.hpp
         include/Containers/List/ListNode.hpp
@@ -117,15 +126,18 @@ set(public_headers
         include/Containers/CList/CListIterator.hpp
         include/Containers/CList/CListNode.hpp
         include/Containers/CList/CListExceptions.hpp
-
+        include/Containers/Vector/VectorBase.hpp
+        include/Containers/Vector/VectorExceptions.hpp
+        include/Containers/Vector/Vector.hpp
+        include/Containers/Vector/VectorIterator.hpp
 )
 
 # not for MSVC
-if(CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCXX)
     # compile options for this target only
     # treat warnings as errors
     target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
-endif()
+endif ()
 
 # where to find our CMake modules
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

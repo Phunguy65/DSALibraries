@@ -1,5 +1,6 @@
 #ifndef DSA_LIBRARIES_DLIST_NODE_HPP
 #define DSA_LIBRARIES_DLIST_NODE_HPP
+#include "../../Utilities/AlignedBuffer.hpp"
 #include <cstddef>
 #include <memory>
 #include <utility>
@@ -9,19 +10,19 @@ namespace Containers
 {
 struct DListNodeBase
 {
-    DListNodeBase* PointerNext = nullptr;
-    DListNodeBase* PointerPrev = nullptr;
+    DListNodeBase *PointerNext = nullptr;
+    DListNodeBase *PointerPrev = nullptr;
 
     DListNodeBase() = default;
 
-    DListNodeBase(DListNodeBase&& nodeBase) noexcept
+    DListNodeBase(DListNodeBase &&nodeBase) noexcept
         : PointerNext(nodeBase.PointerNext), PointerPrev(nodeBase.PointerPrev)
     {
         nodeBase.PointerNext = nullptr;
         nodeBase.PointerPrev = nullptr;
     }
 
-    DListNodeBase& operator=(DListNodeBase&& nodeBase) noexcept
+    DListNodeBase &operator=(DListNodeBase &&nodeBase) noexcept
     {
         PointerNext = nodeBase.PointerNext;
         PointerPrev = nodeBase.PointerPrev;
@@ -30,12 +31,12 @@ struct DListNodeBase
         return *this;
     }
 
-    DListNodeBase(const DListNodeBase&) = delete;
-    DListNodeBase& operator=(const DListNodeBase&) = delete;
+    DListNodeBase(const DListNodeBase &) = delete;
+    DListNodeBase &operator=(const DListNodeBase &) = delete;
 
-    DListNodeBase* TransferAfter(DListNodeBase* begin, DListNodeBase* end) noexcept
+    DListNodeBase *TransferAfter(DListNodeBase *begin, DListNodeBase *end) noexcept
     {
-        DListNodeBase* const keep = begin->PointerNext;
+        DListNodeBase *const keep = begin->PointerNext;
         if (end)
         {
             begin->PointerNext = end->PointerNext;
@@ -63,16 +64,16 @@ struct DListNodeBase
 
     void ReverseAfter() noexcept
     {
-        DListNodeBase* tail = this->PointerNext;
+        DListNodeBase *tail = this->PointerNext;
 
         if (!tail)
         {
             return;
         }
 
-        while (DListNodeBase* tempNode = tail->PointerNext)
+        while (DListNodeBase *tempNode = tail->PointerNext)
         {
-            DListNodeBase* keepNode = this->PointerNext;
+            DListNodeBase *keepNode = this->PointerNext;
             this->PointerNext = tempNode;
 
             if (tempNode->PointerNext)
@@ -87,7 +88,7 @@ struct DListNodeBase
         }
     }
 
-    void HookBeforeInternal(DListNodeBase* nodeBase) noexcept
+    void HookBeforeInternal(DListNodeBase *nodeBase) noexcept
     {
         this->PointerNext = nodeBase;
         this->PointerPrev = nodeBase->PointerPrev;
@@ -95,7 +96,7 @@ struct DListNodeBase
         nodeBase->PointerPrev = this;
     }
 
-    void HookAfterInternal(DListNodeBase* nodeBase) noexcept
+    void HookAfterInternal(DListNodeBase *nodeBase) noexcept
     {
         this->PointerPrev = nodeBase;
         this->PointerNext = nodeBase->PointerNext;
@@ -108,8 +109,8 @@ struct DListNodeBase
 
     void UnhookInternal() noexcept
     {
-        DListNodeBase* const nextNodeBase = this->PointerNext;
-        DListNodeBase* const prevNodeBase = this->PointerPrev;
+        DListNodeBase *const nextNodeBase = this->PointerNext;
+        DListNodeBase *const prevNodeBase = this->PointerPrev;
         if (nextNodeBase)
         {
             nextNodeBase->PointerPrev = prevNodeBase;
@@ -120,18 +121,18 @@ struct DListNodeBase
 
 template <typename T> struct DListNode : public DListNodeBase
 {
-    alignas(T) std::byte Data[sizeof(T)];
-
     DListNode() = default;
 
-    T* GetData() noexcept
+    Utilities::AlignedBuffer<T> data;
+
+    T *GetData() noexcept
     {
-        return static_cast<T*>(static_cast<void*>(&Data));
+        return data.Pointer();
     }
 
-    const T* GetData() const noexcept
+    const T *GetData() const noexcept
     {
-        return static_cast<const T*>(static_cast<const void*>(&Data));
+        return data.Pointer();
     }
 };
 

@@ -4,20 +4,18 @@
 #include "../../include/Containers/DList/DList.hpp"
 #include "DList/DListIterator.hpp"
 #include <gtest/gtest.h>
-namespace DSALibraries::Containers
+namespace DSALibraries::Test
 {
 class DListTest : public ::testing::Test
 {
   protected:
-    DList<int> DList_0;
+    Containers::DList<int> DList_0;
     void SetUp() override
     {
         auto size = 10;
-        auto it = DList_0.GetBeginFromHead();
         for (int i = 0; i < size; i++)
         {
-            DList_0.InsertAfter(it, i);
-            it++;
+            DList_0.PushFront(i);
         }
     }
 
@@ -91,7 +89,7 @@ TEST_F(DListTest, remove)
 
 TEST_F(DListTest, insert_after_end)
 {
-    DListIterator<int> it = DList_0.GetBegin();
+    Containers::DListIterator<int> it = DList_0.GetBegin();
     while (it.PointerNext() != DList_0.GetEnd())
     {
         it++;
@@ -102,7 +100,7 @@ TEST_F(DListTest, insert_after_end)
 
 TEST_F(DListTest, insert_before_begin)
 {
-    DListIterator<int> it = DList_0.GetBegin();
+    Containers::DListIterator<int> it = DList_0.GetBegin();
     DList_0.InsertBefore(it, -1);
     ASSERT_EQ(DList_0.GetSize(), 11);
 }
@@ -117,5 +115,94 @@ TEST_F(DListTest, reverse)
     ASSERT_EQ(DList_0.GetSize(), 10);
 }
 
-} // namespace DSALibraries::Containers
+TEST_F(DListTest, insertion_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(1, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(DListTest, selection_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(2, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(DListTest, bubble_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(3, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(DListTest, quick_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(4, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(DListTest, heap_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(5, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(DListTest, merge_sort)
+{
+    for (auto it = DList_0.GetBegin(); it != DList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    DList_0.DSASort(6, std::less<>());
+    auto it = DList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+} // namespace DSALibraries::Test
 #endif

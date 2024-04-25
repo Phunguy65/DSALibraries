@@ -2,37 +2,20 @@
 #define DSA_LIBRARIES_SLIST_TEST_HPP
 #include "../googletest/include/gtest/gtest.h"
 #include "../include/Containers/SList/SList.hpp"
-#include <exception>
 #include <string>
 
-namespace DSALibraries::Containers
+namespace DSALibraries::Test
 {
-
-class Person
-{
-  public:
-    int Age;
-    std::string Name;
-    Person(int age, std::string name) : Age(age), Name(name)
-    {
-    }
-
-    std::string toString()
-    {
-        return "Name: " + Name + " Age: " + std::to_string(Age);
-    }
-};
-
 class SListTest : public ::testing::Test
 {
-
   protected:
-    SList<Person> SList_0;
+    Containers::SList<int> SList_0;
     void SetUp() override
     {
-        for (auto i = 0; i < 10; i++)
+        auto size = 10;
+        for (int i = 0; i < size; i++)
         {
-            SList_0.PushFront(Person(i, "Name"));
+            SList_0.PushFront(i);
         }
     }
 
@@ -42,25 +25,101 @@ class SListTest : public ::testing::Test
     }
 };
 
-TEST_F(SListTest, PRINT)
+TEST_F(SListTest, PushFront)
+{
+    SList_0.PushFront(10);
+    ASSERT_EQ(SList_0.GetItemFront(), 10);
+}
+
+TEST_F(SListTest, insertion_sort)
 {
     for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
     {
-        std::cout << it->toString() << std::endl;
+        std::cout << *it << std::endl;
     }
-
-    auto itInsert = SList_0.GetBegin();
-    while (itInsert.PointerNext() != SList_0.GetEnd())
+    SList_0.DSASort(1, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
     {
-        itInsert++;
+        std::cout << *it << std::endl;
+        it++;
     }
-    SList_0.InsertAfter(itInsert, Person(100, "Inserted"));
+}
+
+TEST_F(SListTest, selection_sort)
+{
     for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
     {
-        std::cout << it->toString() << std::endl;
+        std::cout << *it << std::endl;
     }
-
-    SList_0.RemoveIf([](Person p) { return p.Age == 100; });
+    SList_0.DSASort(2, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
 }
-} // namespace DSALibraries::Containers
+
+TEST_F(SListTest, bubble_sort)
+{
+    for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    SList_0.DSASort(3, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(SListTest, quick_sort)
+{
+    for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    SList_0.DSASort(4, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(SListTest, heap_sort)
+{
+    for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    SList_0.DSASort(5, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+
+TEST_F(SListTest, merge_sort)
+{
+    for (auto it = SList_0.GetBegin(); it != SList_0.GetEnd(); it++)
+    {
+        std::cout << *it << std::endl;
+    }
+    SList_0.DSASort(6, std::less<>());
+    auto it = SList_0.GetBegin();
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << *it << std::endl;
+        it++;
+    }
+}
+} // namespace DSALibraries::Test
+
 #endif
