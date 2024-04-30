@@ -23,8 +23,9 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
 include(GoogleTest)
+
+option(BUILD_TESTS "Build unit tests" OFF)
 
 add_library(${PROJECT_NAME} STATIC
         include/Containers/Stack/Stack.hpp
@@ -80,10 +81,12 @@ target_include_directories(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 
-add_executable(tests tests/test_defaults.cpp)
-target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(tests gtest_main ${PROJECT_NAME})
-gtest_discover_tests(tests)
+if (BUILD_TESTS)
+    add_executable(tests tests/test_defaults.cpp)
+    target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR})
+    target_link_libraries(tests gtest_main ${PROJECT_NAME})
+    gtest_discover_tests(tests)
+endif ()
 
 
 # totally optional listing of include directories
