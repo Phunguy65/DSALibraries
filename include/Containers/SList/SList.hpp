@@ -280,6 +280,7 @@ template <typename T, typename Alloc = Allocator<T>> class SList : protected SLi
     {
         this->Clear();
         this->MoveAssignInternal(std::move(sll), std::is_nothrow_move_assignable<AllocatorTypeAlias>());
+        return *this;
     }
 
     // Start Zone Adaptive Iterator
