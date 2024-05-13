@@ -446,12 +446,12 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     IteratorAlias InsertAfter(ConstIteratorAlias position, const ValueTypeAlias &value)
     {
-        return IteratorAlias(this->InsertAfterInternal(position, value));
+        return this->InsertAfterInternal(position, value);
     }
 
     IteratorAlias InsertAfter(ConstIteratorAlias position, ValueTypeAlias &&value)
     {
-        return IteratorAlias(this->InsertAfterInternal(position, std::move(value)));
+        return this->InsertAfterInternal(position, std::move(value));
     }
 
     IteratorAlias InsertAfter(ConstIteratorAlias position, SizeTypeAlias size, const ValueTypeAlias &value)
