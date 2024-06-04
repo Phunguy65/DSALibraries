@@ -26,27 +26,27 @@ template <typename T, typename Alloc> class DListBase
         {
         }
 
-        explicit DListBaseCore(DListBaseCore &&list, NodeAllocatorTypeAlias &&nodeAllocator)
+        explicit DListBaseCore(DListBaseCore&& list, NodeAllocatorTypeAlias&& nodeAllocator)
             : NodeAllocatorTypeAlias(std::move(nodeAllocator)), NodeHead(std::move(list.NodeHead))
         {
         }
 
-        explicit DListBaseCore(NodeAllocatorTypeAlias &&nodeAllocator) noexcept
+        explicit DListBaseCore(NodeAllocatorTypeAlias&& nodeAllocator) noexcept
             : NodeAllocatorTypeAlias(std::move(nodeAllocator)), NodeHead()
         {
         }
 
-        DListBaseCore(DListBaseCore &&list) = default;
+        DListBaseCore(DListBaseCore&& list) = default;
     };
 
     DListBaseCore LinkedListCore;
 
-    DListNode<T> *GetNodeInternal() noexcept
+    DListNode<T>* GetNodeInternal() noexcept
     {
-        return static_cast<DListNode<T> *>(LinkedListCore.NodeAllocatorTypeAlias::allocate(1));
+        return static_cast<DListNode<T>*>(LinkedListCore.NodeAllocatorTypeAlias::allocate(1));
     }
 
-    void PutNodeInternal(DListNode<T> *node) noexcept
+    void PutNodeInternal(DListNode<T>* node) noexcept
     {
         LinkedListCore.NodeAllocatorTypeAlias::deallocate(node, 1);
     }
@@ -58,14 +58,14 @@ template <typename T, typename Alloc> class DListBase
     using IteratorAlias = DListIterator<T>;
     using ConstIteratorAlias = DListConstIterator<T>;
 
-    NodeAllocatorTypeAlias &GetNodeAllocatorInternal() noexcept
+    NodeAllocatorTypeAlias& GetNodeAllocatorInternal() noexcept
     {
-        return *static_cast<NodeAllocatorTypeAlias *>(&LinkedListCore);
+        return *static_cast<NodeAllocatorTypeAlias*>(&LinkedListCore);
     }
 
-    const NodeAllocatorTypeAlias &GetNodeAllocatorInternal() const noexcept
+    const NodeAllocatorTypeAlias& GetNodeAllocatorInternal() const noexcept
     {
-        return *static_cast<const NodeAllocatorTypeAlias *>(&LinkedListCore);
+        return *static_cast<const NodeAllocatorTypeAlias*>(&LinkedListCore);
     }
 
     TpAllocatorTypeAlias GetTpAllocatorInternal() const noexcept
@@ -80,16 +80,16 @@ template <typename T, typename Alloc> class DListBase
 
     DListBase() = default;
 
-    explicit DListBase(NodeAllocatorTypeAlias &&allocator) : LinkedListCore(std::move(allocator))
+    explicit DListBase(NodeAllocatorTypeAlias&& allocator) : LinkedListCore(std::move(allocator))
     {
     }
 
-    DListBase(DListBase &&list, NodeAllocatorTypeAlias &&al, std::true_type) noexcept
+    DListBase(DListBase&& list, NodeAllocatorTypeAlias&& al, std::true_type) noexcept
         : LinkedListCore(std::move(list.LinkedListCore), std::move(al))
     {
     }
 
-    DListBase(DListBase &&list, NodeAllocatorTypeAlias &&al) noexcept
+    DListBase(DListBase&& list, NodeAllocatorTypeAlias&& al) noexcept
         : LinkedListCore(std::move(list.LinkedListCore), std::move(al))
     {
         if (list.GetNodeAllocatorInternal() == al)
@@ -104,9 +104,9 @@ template <typename T, typename Alloc> class DListBase
     }
 
   protected:
-    template <typename... Args> NodeAlias *CreateNodeInternal(Args &&...args)
+    template <typename... Args> NodeAlias* CreateNodeInternal(Args&&... args)
     {
-        NodeAlias *node = this->GetNodeInternal();
+        NodeAlias* node = this->GetNodeInternal();
         try
         {
             this->GetTpAllocatorInternal().construct(node->GetData(), std::forward<Args>(args)...);
@@ -118,31 +118,31 @@ template <typename T, typename Alloc> class DListBase
         }
         return node;
     }
-    template <typename... Args> IteratorAlias InsertBeforeInternal(ConstIteratorAlias position, Args &&...args)
+    template <typename... Args> IteratorAlias InsertBeforeInternal(ConstIteratorAlias position, Args&&... args)
     {
-        NodeBaseAlias *nodeBase = const_cast<NodeBaseAlias *>(position.NodeBase);
+        NodeBaseAlias* nodeBase = const_cast<NodeBaseAlias*>(position.NodeBase);
 
-        NodeAlias *newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
+        NodeAlias* newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
 
         newNode->HookBeforeInternal(nodeBase);
 
         return IteratorAlias(newNode);
     }
 
-    template <typename... Args> IteratorAlias InsertAfterInternal(ConstIteratorAlias position, Args &&...args)
+    template <typename... Args> IteratorAlias InsertAfterInternal(ConstIteratorAlias position, Args&&... args)
     {
-        NodeBaseAlias *nodeBase = const_cast<NodeBaseAlias *>(position.NodeBase);
+        NodeBaseAlias* nodeBase = const_cast<NodeBaseAlias*>(position.NodeBase);
 
-        NodeAlias *newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
+        NodeAlias* newNode = this->CreateNodeInternal(std::forward<Args>(args)...);
 
         newNode->HookAfterInternal(nodeBase);
 
         return IteratorAlias(newNode);
     }
 
-    NodeBaseAlias *EraseAfterInternal(NodeBaseAlias *position)
+    NodeBaseAlias* EraseAfterInternal(NodeBaseAlias* position)
     {
-        NodeAlias *currentNode = static_cast<NodeAlias *>(position->PointerNext);
+        NodeAlias* currentNode = static_cast<NodeAlias*>(position->PointerNext);
 
         currentNode->UnhookInternal();
 
@@ -150,18 +150,18 @@ template <typename T, typename Alloc> class DListBase
 
         currentNode->~NodeAlias();
 
-        this->PutNodeInternal(static_cast<NodeAlias *>(currentNode));
+        this->PutNodeInternal(static_cast<NodeAlias*>(currentNode));
 
         return position->PointerNext;
     }
 
-    NodeBaseAlias *EraseAfterInternal(NodeBaseAlias *begin, NodeBaseAlias *end)
+    NodeBaseAlias* EraseAfterInternal(NodeBaseAlias* begin, NodeBaseAlias* end)
     {
-        NodeAlias *currentNode = static_cast<NodeAlias *>(begin->PointerNext);
+        NodeAlias* currentNode = static_cast<NodeAlias*>(begin->PointerNext);
         while (currentNode != end)
         {
-            NodeAlias *temp = currentNode;
-            currentNode = static_cast<NodeAlias *>(currentNode->PointerNext);
+            NodeAlias* temp = currentNode;
+            currentNode = static_cast<NodeAlias*>(currentNode->PointerNext);
             this->GetTpAllocatorInternal().destroy(temp->GetData());
             temp->~NodeAlias();
             this->PutNodeInternal(temp);
@@ -188,8 +188,8 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
   public:
     using ValueTypeAlias = T;
-    using ReferenceTypeAlias = ValueTypeAlias &;
-    using ConstReferenceTypeAlias = const ValueTypeAlias &;
+    using ReferenceTypeAlias = ValueTypeAlias&;
+    using ConstReferenceTypeAlias = const ValueTypeAlias&;
     using IteratorAlias = typename DListBaseAlias::IteratorAlias;
     using ConstIteratorAlias = typename DListBaseAlias::ConstIteratorAlias;
     using AllocatorTypeAlias = typename DListBaseAlias::AllocatorTypeAlias;
@@ -207,13 +207,13 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     using size_type = SizeTypeAlias;
 
   private:
-    DList(DList &&list, NodeAllocatorTypeAlias &&nodeAllocator, std::false_type) noexcept
+    DList(DList&& list, NodeAllocatorTypeAlias&& nodeAllocator, std::false_type) noexcept
         : DListBaseAlias(std::move(list), std::move(nodeAllocator))
     {
         this->InsertAfter(this->GetConstBeginFromHead(), list.GetBegin(), list.GetEnd());
     }
 
-    DList(DList &&list, NodeAllocatorTypeAlias &&nodeAllocator, std::true_type) noexcept
+    DList(DList&& list, NodeAllocatorTypeAlias&& nodeAllocator, std::true_type) noexcept
         : DListBaseAlias(std::move(list), std::move(nodeAllocator))
     {
     }
@@ -223,48 +223,48 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
     {
     }
 
-    explicit DList(const AllocatorTypeAlias &allocator) : DListBaseAlias(AllocatorTypeAlias(allocator))
+    explicit DList(const AllocatorTypeAlias& allocator) : DListBaseAlias(AllocatorTypeAlias(allocator))
     {
     }
 
-    explicit DList(SizeTypeAlias size, const AllocatorTypeAlias &al = Alloc())
+    explicit DList(SizeTypeAlias size, const AllocatorTypeAlias& al = Alloc())
         : DListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         DefaultInitializeInternal(size);
     }
 
-    DList(SizeTypeAlias size, const ValueTypeAlias &value, const AllocatorTypeAlias &al = AllocatorTypeAlias())
+    DList(SizeTypeAlias size, const ValueTypeAlias& value, const AllocatorTypeAlias& al = AllocatorTypeAlias())
         : DListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         FillInitializeInternal(size, value);
     }
 
-    DList(const DList &list) : DListBaseAlias(NodeAllocatorTypeAlias::select_on_container_copy_construction())
+    DList(const DList& list) : DListBaseAlias(NodeAllocatorTypeAlias::select_on_container_copy_construction())
     {
         RangeInitalizeInternal(list.GetBegin(), list.GetEnd());
     }
 
-    DList(std::initializer_list<ValueTypeAlias> init, const AllocatorTypeAlias &al = AllocatorTypeAlias())
+    DList(std::initializer_list<ValueTypeAlias> init, const AllocatorTypeAlias& al = AllocatorTypeAlias())
         : DListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         RangeInitalizeInternal(init.begin(), init.end());
     }
 
     template <typename InputIterator>
-    DList(InputIterator begin, InputIterator end, const AllocatorTypeAlias &al = AllocatorTypeAlias())
+    DList(InputIterator begin, InputIterator end, const AllocatorTypeAlias& al = AllocatorTypeAlias())
         : DListBaseAlias(NodeAllocatorTypeAlias(al))
     {
         RangeInitalizeInternal(begin, end);
     }
 
-    DList(DList &&list, const AllocatorTypeAlias &al) noexcept
+    DList(DList&& list, const AllocatorTypeAlias& al) noexcept
         : DList(std::move(list), NodeAllocatorTypeAlias(al), NodeAllocatorTypeAlias::is_always_equal())
     {
     }
 
     ~DList() noexcept = default;
 
-    DList &operator=(const DList &list)
+    DList& operator=(const DList& list)
     {
         if (this != std::addressof(list))
         {
@@ -281,7 +281,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         return *this;
     }
 
-    DList &operator=(DList &&list) noexcept
+    DList& operator=(DList&& list) noexcept
     {
         this->Clear();
         this->GetNodeAllocatorInternal() = std::move(list.GetNodeAllocatorInternal());
@@ -404,17 +404,17 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         return *GetConstBegin();
     }
 
-    void PushFront(const ValueTypeAlias &value)
+    void PushFront(const ValueTypeAlias& value)
     {
         this->InsertAfterInternal(this->GetBeginFromHead(), value);
     }
 
-    void PushFront(ValueTypeAlias &&value)
+    void PushFront(ValueTypeAlias&& value)
     {
         this->InsertAfterInternal(this->GetBeginFromHead(), std::move(value));
     }
 
-    template <typename... Args> void EmplaceFront(Args &&...args)
+    template <typename... Args> void EmplaceFront(Args&&... args)
     {
         this->InsertAfterInternal(this->GetBeginFromHead(), std::forward<Args>(args)...);
     }
@@ -424,37 +424,37 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         this->EraseAfterInternal(GetBeginFromHead());
     }
 
-    template <typename... Args> IteratorAlias EmplaceBefore(ConstIteratorAlias position, Args &&...args)
+    template <typename... Args> IteratorAlias EmplaceBefore(ConstIteratorAlias position, Args&&... args)
     {
         return IteratorAlias(this->InsertBeforeInternal(position, std::forward<Args>(args)...));
     }
 
-    template <typename... Args> IteratorAlias EmplaceAfter(ConstIteratorAlias position, Args &&...args)
+    template <typename... Args> IteratorAlias EmplaceAfter(ConstIteratorAlias position, Args&&... args)
     {
         return IteratorAlias(this->InsertAfterInternal(position, std::forward<Args>(args)...));
     }
 
-    IteratorAlias InsertBefore(ConstIteratorAlias position, const ValueTypeAlias &value)
+    IteratorAlias InsertBefore(ConstIteratorAlias position, const ValueTypeAlias& value)
     {
         return IteratorAlias(this->InsertBeforeInternal(position, value));
     }
 
-    IteratorAlias InsertBefore(ConstIteratorAlias position, ValueTypeAlias &&value)
+    IteratorAlias InsertBefore(ConstIteratorAlias position, ValueTypeAlias&& value)
     {
         return IteratorAlias(this->InsertBeforeInternal(position, std::move(value)));
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias position, const ValueTypeAlias &value)
+    IteratorAlias InsertAfter(ConstIteratorAlias position, const ValueTypeAlias& value)
     {
         return this->InsertAfterInternal(position, value);
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias position, ValueTypeAlias &&value)
+    IteratorAlias InsertAfter(ConstIteratorAlias position, ValueTypeAlias&& value)
     {
         return this->InsertAfterInternal(position, std::move(value));
     }
 
-    IteratorAlias InsertAfter(ConstIteratorAlias position, SizeTypeAlias size, const ValueTypeAlias &value)
+    IteratorAlias InsertAfter(ConstIteratorAlias position, SizeTypeAlias size, const ValueTypeAlias& value)
     {
         if (size)
         {
@@ -463,7 +463,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         }
         else
         {
-            return IteratorAlias(const_cast<IteratorAlias *>(position.NodeBase));
+            return IteratorAlias(const_cast<IteratorAlias*>(position.NodeBase));
         }
     }
 
@@ -478,11 +478,11 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         }
         else
         {
-            return IteratorAlias(const_cast<IteratorAlias *>(position.NodeBase));
+            return IteratorAlias(const_cast<IteratorAlias*>(position.NodeBase));
         }
     }
 
-    void Assign(SizeTypeAlias size, const ValueTypeAlias &value)
+    void Assign(SizeTypeAlias size, const ValueTypeAlias& value)
     {
         MoveAssignInternal(size, value, std::is_copy_assignable<ValueTypeAlias>());
     }
@@ -492,7 +492,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         MoveAssignInternal(begin, end, std::is_copy_assignable<ValueTypeAlias>());
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, DList &&list)
+    void SpliceAfter(ConstIteratorAlias pos, DList&& list)
     {
         if (!list.IsEmpty())
         {
@@ -500,12 +500,12 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         }
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, DList &list)
+    void SpliceAfter(ConstIteratorAlias pos, DList& list)
     {
         SpliceAfter(pos, std::move(list));
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, DList &&list, ConstIteratorAlias it)
+    void SpliceAfter(ConstIteratorAlias pos, DList&& list, ConstIteratorAlias it)
     {
         ConstIteratorAlias next = it;
         ++next;
@@ -513,38 +513,37 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         {
             return;
         }
-        NodeBaseAlias *begin = const_cast<NodeBaseAlias *>(pos.NodeBase);
-        return begin->TransferAfter(const_cast<NodeBaseAlias *>(it.NodeBase),
-                                    const_cast<NodeBaseAlias *>(next.NodeBase));
+        NodeBaseAlias* begin = const_cast<NodeBaseAlias*>(pos.NodeBase);
+        return begin->TransferAfter(const_cast<NodeBaseAlias*>(it.NodeBase), const_cast<NodeBaseAlias*>(next.NodeBase));
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, DListBaseAlias &&list, ConstIteratorAlias begin, ConstIteratorAlias end)
+    void SpliceAfter(ConstIteratorAlias pos, DListBaseAlias&& list, ConstIteratorAlias begin, ConstIteratorAlias end)
     {
         this->SpliceAfterInternal(pos, begin, end);
     }
 
-    void SpliceAfter(ConstIteratorAlias pos, DList &list, ConstIteratorAlias first, ConstIteratorAlias last)
+    void SpliceAfter(ConstIteratorAlias pos, DList& list, ConstIteratorAlias first, ConstIteratorAlias last)
     {
         SpliceAfter(pos, std::move(list), first, last);
     }
 
     IteratorAlias EraseAfter(ConstIteratorAlias position)
     {
-        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias *>(position.NodeBase)));
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(position.NodeBase)));
     }
 
     IteratorAlias EraseAfter(ConstIteratorAlias begin, ConstIteratorAlias end)
     {
-        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias *>(begin.NodeBase),
-                                                      const_cast<NodeBaseAlias *>(end.NodeBase)));
+        return IteratorAlias(this->EraseAfterInternal(const_cast<NodeBaseAlias*>(begin.NodeBase),
+                                                      const_cast<NodeBaseAlias*>(end.NodeBase)));
     }
 
-    void Remove(const ValueTypeAlias &value)
+    void Remove(const ValueTypeAlias& value)
     {
-        NodeBaseAlias *node = static_cast<NodeBaseAlias *>(&this->LinkedListCore.NodeHead);
-        NodeBaseAlias *saveNode = nullptr;
+        NodeBaseAlias* node = static_cast<NodeBaseAlias*>(&this->LinkedListCore.NodeHead);
+        NodeBaseAlias* saveNode = nullptr;
 
-        while (NodeAlias *temp = static_cast<NodeAlias *>(node->PointerNext))
+        while (NodeAlias* temp = static_cast<NodeAlias*>(node->PointerNext))
         {
             if (*temp->GetData() == value)
             {
@@ -570,8 +569,8 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     template <typename TPredicate> void RemoveIf(TPredicate predicate)
     {
-        NodeBaseAlias *node = &this->LinkedListCore.NodeHead;
-        while (NodeAlias *temp = static_cast<NodeAlias *>(node->PointerNext))
+        NodeBaseAlias* node = &this->LinkedListCore.NodeHead;
+        while (NodeAlias* temp = static_cast<NodeAlias*>(node->PointerNext))
         {
             if (predicate(*temp->GetData()))
             {
@@ -584,29 +583,29 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         }
     }
 
-    void Merge(DList &&list)
+    void Merge(DList&& list)
     {
         Merge(std::move(list), std::less<ValueTypeAlias>());
     }
 
-    void Merge(DList &list)
+    void Merge(DList& list)
     {
         Merge(std::move(list));
     }
 
-    template <typename TCompare> void Merge(DList &&list, TCompare compare)
+    template <typename TCompare> void Merge(DList&& list, TCompare compare)
     {
         if (std::addressof(list) == this)
         {
             return;
         }
 
-        NodeBaseAlias *node = static_cast<NodeBaseAlias *>(&this->LinkedListCore.NodeHead);
+        NodeBaseAlias* node = static_cast<NodeBaseAlias*>(&this->LinkedListCore.NodeHead);
 
         while (node->PointerNext && list.LinkedListCore.NodeHead.PointerNext)
         {
-            if (compare(*static_cast<NodeAlias *>(list.LinkedListCore.NodeHead.PointerNext)->GetData(),
-                        *static_cast<NodeAlias *>(node->PointerNext)->GetData()))
+            if (compare(*static_cast<NodeAlias*>(list.LinkedListCore.NodeHead.PointerNext)->GetData(),
+                        *static_cast<NodeAlias*>(node->PointerNext)->GetData()))
             {
                 node->TransferAfter(&list.LinkedListCore.NodeHead, list.LinkedListCore.NodeHead.PointerNext);
             }
@@ -620,7 +619,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         }
     }
 
-    template <typename Compare> void Merge(DList &list, Compare compare)
+    template <typename Compare> void Merge(DList& list, Compare compare)
     {
         Merge(std::move(list), compare);
     }
@@ -734,7 +733,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         this->LinkedListCore.NodeHead.ReverseAfter();
     }
 
-    void Swap(DList &list) noexcept
+    void Swap(DList& list) noexcept
     {
         std::swap(this->LinkedListCore.NodeHead.PointerNext, list.LinkedListCore.NodeHead.PointerNext);
         std::swap(this->LinkedListCore.NodeHead.PointerNext.PointerPrev,
@@ -749,23 +748,23 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
   private:
     void DefaultInitializeInternal(SizeTypeAlias size)
     {
-        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
 
         for (; size > 0; --size)
         {
-            NodeAlias *newNode = this->CreateNodeInternal();
+            NodeAlias* newNode = this->CreateNodeInternal();
             newNode->HookAfterInternal(temp);
             temp = newNode;
         }
     }
 
-    void FillInitializeInternal(SizeTypeAlias size, const ValueTypeAlias &value)
+    void FillInitializeInternal(SizeTypeAlias size, const ValueTypeAlias& value)
     {
-        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
 
         for (; size > 0; --size)
         {
-            NodeAlias *newNode = this->CreateNodeInternal(value);
+            NodeAlias* newNode = this->CreateNodeInternal(value);
             newNode->HookAfterInternal(temp);
             temp = newNode;
         }
@@ -773,11 +772,11 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     template <typename InputIterator> void RangeInitalizeInternal(InputIterator begin, InputIterator end)
     {
-        NodeBaseAlias *temp = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias* temp = &this->LinkedListCore.NodeHead;
 
         for (; begin != end; ++begin)
         {
-            NodeAlias *newNode = this->CreateNodeInternal(*begin);
+            NodeAlias* newNode = this->CreateNodeInternal(*begin);
             newNode->HookAfterInternal(temp);
             temp = newNode;
         }
@@ -785,9 +784,9 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     template <typename InputIterator> void AssignInternal(InputIterator begin, InputIterator end, std::true_type)
     {
-        IteratorAlias *prev = GetBeginFromHead();
-        IteratorAlias *current = GetBegin();
-        IteratorAlias *last = GetEnd();
+        IteratorAlias* prev = GetBeginFromHead();
+        IteratorAlias* current = GetBegin();
+        IteratorAlias* last = GetEnd();
 
         while (begin != end && current != last)
         {
@@ -813,13 +812,13 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         this->InsertAfter(this->GetConstBeginFromHead(), begin, end);
     }
 
-    void MoveAssignInternal(DList &&list, std::true_type)
+    void MoveAssignInternal(DList&& list, std::true_type)
     {
         this->Clear();
         this->InsertAfter(this->GetConstBeginFromHead(), list.GetBegin(), list.GetEnd());
     }
 
-    void MoveAssignInternal(DList &&list, std::false_type)
+    void MoveAssignInternal(DList&& list, std::false_type)
     {
         if (this->GetAllocator() == list.GetAllocator())
         {
@@ -834,9 +833,9 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 
     IteratorAlias SpliceAfterInternal(ConstIteratorAlias pos, ConstIteratorAlias begin, ConstIteratorAlias end)
     {
-        NodeBaseAlias *temp = const_cast<NodeBaseAlias *>(pos.NodeBase);
-        NodeBaseAlias *beginNode = const_cast<NodeBaseAlias *>(begin.NodeBase);
-        NodeBaseAlias *endNode = beginNode;
+        NodeBaseAlias* temp = const_cast<NodeBaseAlias*>(pos.NodeBase);
+        NodeBaseAlias* beginNode = const_cast<NodeBaseAlias*>(begin.NodeBase);
+        NodeBaseAlias* endNode = beginNode;
 
         while (endNode->PointerNext != end.NodeBase)
         {
@@ -864,13 +863,13 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
             return;
         }
 
-        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
-        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
+        while (auto* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {
-            NodeBaseAlias *next = curr->PointerNext;
-            while (auto *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            NodeBaseAlias* next = curr->PointerNext;
+            while (auto* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
             {
-                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias *>(next)->GetData()))
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(next)->GetData()))
                 {
                     curr->TransferAfter(next, nextTemp);
                 }
@@ -891,16 +890,16 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
             return;
         }
 
-        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
+        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
 
-        while (NodeAlias *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
         {
-            NodeBaseAlias *min = curr;
-            NodeBaseAlias *next = curr->PointerNext;
+            NodeBaseAlias* min = curr;
+            NodeBaseAlias* next = curr->PointerNext;
 
-            while (NodeAlias *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            while (NodeAlias* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
             {
-                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias *>(min->PointerNext)->GetData()))
+                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(min->PointerNext)->GetData()))
                 {
                     min = next;
                 }
@@ -926,22 +925,30 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
             return;
         }
 
-        NodeBaseAlias *curr = &this->LinkedListCore.NodeHead;
-        while (auto *temp = static_cast<NodeAlias *>(curr->PointerNext))
+        NodeBaseAlias* sorted = this->LinkedListCore.NodeHead.PointerNext;
+        NodeBaseAlias* unsorted = sorted->PointerNext;
+
+        while (sorted->PointerNext)
         {
-            NodeBaseAlias *next = curr->PointerNext;
-            while (auto *nextTemp = static_cast<NodeAlias *>(next->PointerNext))
+            bool isInserted = false;
+            for (NodeBaseAlias* temp = &this->LinkedListCore.NodeHead; temp->PointerNext != sorted;
+                 temp = temp->PointerNext)
             {
-                if (compare(*nextTemp->GetData(), *temp->GetData()))
+                if (compare(*static_cast<NodeAlias*>(temp->PointerNext)->GetData(),
+                            *static_cast<NodeAlias*>(unsorted)->GetData()))
                 {
-                    curr->TransferAfter(next, nextTemp);
-                }
-                else
-                {
-                    next = next->PointerNext;
+                    temp->TransferAfter(sorted, unsorted);
+                    unsorted = sorted->PointerNext;
+                    isInserted = true;
+                    break;
                 }
             }
-            curr = curr->PointerNext;
+
+            if (!isInserted)
+            {
+                sorted = sorted->PointerNext;
+                unsorted = sorted->PointerNext;
+            }
         }
     }
 
@@ -1097,7 +1104,7 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
 };
 
 template <typename T, typename Alloc>
-inline bool operator==(const DList<T, Alloc> &lhs, const DList<T, Alloc> &rhs) noexcept
+inline bool operator==(const DList<T, Alloc>& lhs, const DList<T, Alloc>& rhs) noexcept
 {
     typedef typename DList<T, Alloc>::ConstIteratorAlias ConstIteratorAlias;
 
@@ -1117,12 +1124,12 @@ inline bool operator==(const DList<T, Alloc> &lhs, const DList<T, Alloc> &rhs) n
 }
 
 template <typename T, typename Alloc>
-inline bool operator!=(const DList<T, Alloc> &lhs, const DList<T, Alloc> &rhs) noexcept
+inline bool operator!=(const DList<T, Alloc>& lhs, const DList<T, Alloc>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-template <typename T, typename Alloc> inline void Swap(DList<T, Alloc> &lhs, DList<T, Alloc> &rhs) noexcept
+template <typename T, typename Alloc> inline void Swap(DList<T, Alloc>& lhs, DList<T, Alloc>& rhs) noexcept
 {
     lhs.Swap(rhs);
 }
