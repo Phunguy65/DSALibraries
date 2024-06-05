@@ -862,23 +862,26 @@ template <typename T, typename Alloc = Allocator<T>> class DList : protected DLi
         {
             return;
         }
-
-        NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
-        while (auto* temp = static_cast<NodeAlias*>(curr->PointerNext))
+        while (true)
         {
-            NodeBaseAlias* next = curr->PointerNext;
-            while (auto* nextTemp = static_cast<NodeAlias*>(next->PointerNext))
+            bool isSwapped = false;
+            NodeBaseAlias* curr = &this->LinkedListCore.NodeHead;
+            while (NodeAlias* temp = static_cast<NodeAlias*>(curr->PointerNext))
             {
-                if (compare(*nextTemp->GetData(), *static_cast<NodeAlias*>(next)->GetData()))
+                if (NodeAlias* nextTemp = static_cast<NodeAlias*>(temp->PointerNext))
                 {
-                    curr->TransferAfter(next, nextTemp);
+                    if (compare(*nextTemp->GetData(), *temp->GetData()))
+                    {
+                        curr->TransferAfter(temp, nextTemp);
+                        isSwapped = true;
+                    }
                 }
-                else
-                {
-                    next = next->PointerNext;
-                }
+                curr = curr->PointerNext;
             }
-            curr = curr->PointerNext;
+            if (!isSwapped)
+            {
+                break;
+            }
         }
     }
 
